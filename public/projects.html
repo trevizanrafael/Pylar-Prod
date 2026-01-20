@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pylar - Projetos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+        }
+    </style>
+</head>
+
+<body class="text-slate-100 min-h-screen">
+    <nav class="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <span
+                        class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">Pylar</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-sm text-slate-400">
+                        <span id="userDisplay" class="font-semibold text-white">...</span>
+                    </div>
+                    <button class="text-slate-400 hover:text-white transition-colors" onclick="logout()">
+                        Sair
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
+        <h1 class="text-4xl font-bold mb-4">Meus Projetos</h1>
+        <p class="text-xl text-slate-400 mb-8">Selecione um projeto para trabalhar</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Project Card Placeholder -->
+            <div
+                class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 hover:border-blue-500/50 transition-colors cursor-pointer group">
+                <div
+                    class="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center mb-4 group-hover:bg-blue-500/20 transition-colors">
+                    <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                        </path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-white mb-2">Exemplo de Projeto</h3>
+                <p class="text-sm text-slate-400">Descrição curta do projeto para contexto inicial.</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const userStr = localStorage.getItem('pylar_user');
+        if (!userStr) window.location.href = '/';
+        const user = JSON.parse(userStr);
+        document.getElementById('userDisplay').textContent = user.username;
+
+        function logout() {
+            localStorage.removeItem('pylar_user');
+            window.location.href = '/';
+        }
+    </script>
+</body>
+
+</html>

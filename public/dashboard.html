@@ -38,6 +38,32 @@
     </nav>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Seed User Section -->
+        <div class="mb-10">
+            <h2 class="text-sm uppercase tracking-wide text-slate-500 font-semibold mb-3">Administrador do Sistema
+                (Seed)</h2>
+            <div
+                class="bg-gradient-to-r from-purple-900/40 to-blue-900/40 border border-purple-500/30 rounded-xl p-4 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div
+                        class="h-10 w-10 rounded-full bg-purple-500/20 flex items-center justify-center border border-purple-500/50">
+                        <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                            </path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p id="seedUserDisplay" class="font-bold text-white">Carregando...</p>
+                        <p class="text-xs text-purple-300">Acesso Total · Imutável</p>
+                    </div>
+                </div>
+                <div class="px-3 py-1 bg-purple-500/20 rounded text-xs text-purple-300 border border-purple-500/30">
+                    SuperUser
+                </div>
+            </div>
+        </div>
+
         <div class="flex justify-between items-center mb-8">
             <h1 class="text-2xl font-bold">Gerenciar Usuários</h1>
             <button onclick="openModal()"
@@ -93,7 +119,6 @@
                         class="w-full px-3 py-2 rounded-lg bg-slate-900/50 border border-slate-600 text-white focus:outline-none focus:border-blue-500 transition-colors">
                         <option value="Member">Member</option>
                         <option value="Admin">Admin</option>
-                        <option value="SuperUser">SuperUser</option>
                     </select>
                 </div>
 

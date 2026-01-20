@@ -37,6 +37,13 @@ async function fetchUsers() {
         tbody.innerHTML = '';
 
         users.forEach(user => {
+            // Separate Seed User (SuperUser)
+            if (user.role === 'SuperUser') {
+                const seedDisplay = document.getElementById('seedUserDisplay');
+                if (seedDisplay) seedDisplay.textContent = user.username;
+                return; // Skip rendering in table
+            }
+
             const tr = document.createElement('tr');
             tr.className = 'hover:bg-slate-800/30 transition-colors';
             tr.innerHTML = `
@@ -157,4 +164,10 @@ form.addEventListener('submit', async (e) => {
 
 // Init
 checkAuth();
-fetchUsers();
+
+// RBAC: Enforce SuperUser access
+if (currentUser.role !== 'SuperUser') {
+    window.location.href = '/projects.html';
+} else {
+    fetchUsers();
+}

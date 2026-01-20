@@ -34,7 +34,12 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         if (response.ok) {
             // Save user info (insecure for real app, ok for MVP demo)
             localStorage.setItem('pylar_user', JSON.stringify(data.user));
-            window.location.href = '/dashboard.html';
+
+            if (data.user.role === 'SuperUser') {
+                window.location.href = '/dashboard.html';
+            } else {
+                window.location.href = '/projects.html';
+            }
         } else {
             throw new Error(data.message || 'Erro ao realizar login');
         }
