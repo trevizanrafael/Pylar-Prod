@@ -30,7 +30,7 @@ function formatDate(dateString) {
     });
 }
 
-// Fetch and Render Users (Scoped View)
+// Fetch and Render Users
 async function fetchUsers() {
     try {
         const res = await fetch(API_URL, {
@@ -45,15 +45,23 @@ async function fetchUsers() {
         tbody.innerHTML = '';
 
         users.forEach(user => {
+            // Separate Seed User (SuperUser)
+            if (user.role === 'SuperUser') {
+                const seedDisplay = document.getElementById('seedUserDisplay');
+                if (seedDisplay) seedDisplay.textContent = user.username;
+                return; // Skip rendering in table
+            }
+
             const tr = document.createElement('tr');
-            tr.className = 'hover:bg-gray-800/50 transition-colors border-b border-gray-700/50 last:border-0';
+            tr.className = 'hover:bg-slate-800/30 transition-colors';
             tr.innerHTML = `
-                <td class="px-6 py-4 font-mono text-gray-500">#${user.id}</td>
+                <td class="px-6 py-4 font-mono text-slate-500">#${user.id}</td>
                 <td class="px-6 py-4 font-medium text-white">${user.username}</td>
+                <td class="px-6 py-4 text-slate-400 text-xs">${user.company_name || 'Sistema'}</td>
                 <td class="px-6 py-4">
-                    <span class="px-2 py-1 bg-gray-700 rounded text-xs text-gray-300 border border-gray-600">${user.role}</span>
+                    <span class="px-2 py-1 bg-slate-700/50 rounded text-xs border border-slate-600">${user.role}</span>
                 </td>
-                <td class="px-6 py-4 text-gray-400">${formatDate(user.created_at)}</td>
+                <td class="px-6 py-4">${formatDate(user.created_at)}</td>
                 <td class="px-6 py-4 text-right space-x-2">
                     <button onclick="editUser(${user.id}, '${user.username}', '${user.role}')" 
                         class="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors">Editar</button>
@@ -118,7 +126,8 @@ window.deleteUser = async function (id) {
         const res = await fetch(`${API_URL}/${id}`, {
             method: 'DELETE',
             headers: {
-                'x-company-id': currentUser.company_id
+                'x-company-id': currentUser.company_id,
+                'x-user-role': currentUser.role
             }
         });
         if (res.ok) {
@@ -152,7 +161,8 @@ form.addEventListener('submit', async (e) => {
             method,
             headers: {
                 'Content-Type': 'application/json',
-                'x-company-id': currentUser.company_id
+                'x-company-id': currentUser.company_id,
+                'x-user-role': currentUser.role
             },
             body: JSON.stringify(body)
         });
@@ -174,15 +184,10 @@ form.addEventListener('submit', async (e) => {
 // Init
 checkAuth();
 
-// RBAC: Role Enforcement
-if (currentUser.role === 'SuperUser') {
-    // Redirect SuperUser to Seed Page if they land here
-    window.location.href = '/seed.html';
-} else if (currentUser.role !== 'Admin') {
-    // Redirect Members to Projects
+// RBAC: Allow SuperUser AND Admin
+if (currentUser.role !== 'SuperUser' && currentUser.role !== 'Admin') {
     window.location.href = '/projects.html';
 } else {
-    // Admin: specific scoped view
     fetchUsers();
 }
 

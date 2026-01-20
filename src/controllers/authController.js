@@ -26,6 +26,31 @@ class AuthController {
             return res.status(500).json({ message: 'Internal server error' });
         }
     }
+
+    async register(req, res) {
+        try {
+            const { companyName, username, password } = req.body;
+
+            if (!companyName || !username || !password) {
+                return res.status(400).json({ message: 'Todos os campos são obrigatórios.' });
+            }
+
+            const result = await authService.registerCompany(companyName, username, password);
+
+            if (result.success) {
+                return res.status(201).json({
+                    message: 'Empresa registrada com sucesso!',
+                    company: result.company,
+                    user: result.user
+                });
+            } else {
+                return res.status(400).json({ message: result.message });
+            }
+        } catch (error) {
+            console.error('Registration error:', error);
+            return res.status(500).json({ message: 'Erro interno ao registrar empresa.' });
+        }
+    }
 }
 
 module.exports = new AuthController();
