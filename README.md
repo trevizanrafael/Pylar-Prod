@@ -134,9 +134,43 @@ antes de qualquer expansão de funcionalidades.
 
 ---
 
-## 📌 Objetivo do projeto
-O Pylar existe para:
-- Centralizar trabalho real
-- Evitar perda de contexto
 - Registrar decisões e soluções
 - Crescer sem virar bagunça
+
+---
+
+## ⚙️ Configuração e Instalação
+
+### Pré-requisitos
+- Node.js
+- PostgreSQL
+
+### Variáveis de Ambiente (.env)
+Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
+
+```env
+# Server
+PORT=3000
+
+# Database
+DATABASE_URL=postgresql://user:password@localhost:5432/pylar_db
+
+# Security
+JWT_SECRET=seusecretaqui
+
+# Admin Seed (Criado automaticamente se não existir)
+SEED_USER=Seu Usuário
+SEED_PASSWORD=Sua Senha
+```
+
+### Rodando o projeto
+
+1. Instale as dependências:
+   ```bash
+   npm install
+   ```
+
+2. Inicie o servidor (Dev):
+   ```bash
+   npm run dev
+   ```

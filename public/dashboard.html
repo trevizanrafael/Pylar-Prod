@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pylar - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+        }
+    </style>
+</head>
+
+<body class="text-slate-100 min-h-screen">
+    <nav class="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <span
+                        class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">Pylar</span>
+                </div>
+                <div>
+                    <button class="text-slate-400 hover:text-white transition-colors" onclick="logout()">
+                        Sair
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="text-center py-20">
+            <h1 class="text-4xl font-bold mb-4">Bem-vindo ao Pylar</h1>
+            <p class="text-xl text-slate-400 mb-8">Gerenciador de Projetos (Em Breve)</p>
+            <div
+                class="inline-block p-1 rounded-xl bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-slate-700/50">
+                <div class="bg-slate-900 rounded-lg px-8 py-6">
+                    <p class="text-sm text-slate-500">Logado como</p>
+                    <p id="userDisplay" class="text-lg font-semibold text-white">...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Simple auth check stub
+        const user = localStorage.getItem('pylar_user');
+        if (!user) {
+            window.location.href = '/';
+        } else {
+            const userData = JSON.parse(user);
+            document.getElementById('userDisplay').textContent = userData.username;
+        }
+
+        function logout() {
+            localStorage.removeItem('pylar_user');
+            window.location.href = '/';
+        }
+    </script>
+</body>
+
+</html>
