@@ -43,7 +43,7 @@ class AuthService {
 
         return {
             success: false,
-            message: 'Invalid credentials'
+            message: 'Senha e usuário não correspondem.'
         };
     }
 }

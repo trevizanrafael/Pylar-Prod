@@ -24,7 +24,11 @@
                     <span
                         class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">Pylar</span>
                 </div>
-                <div>
+                <div class="flex items-center gap-4">
+                    <div class="text-sm text-slate-400">
+                        <span id="userDisplay" class="font-semibold text-white">...</span>
+                        <span id="roleDisplay" class="text-xs bg-slate-800 px-2 py-0.5 rounded ml-2">...</span>
+                    </div>
                     <button class="text-slate-400 hover:text-white transition-colors" onclick="logout()">
                         Sair
                     </button>
@@ -34,34 +38,76 @@
     </nav>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div class="text-center py-20">
-            <h1 class="text-4xl font-bold mb-4">Bem-vindo ao Pylar</h1>
-            <p class="text-xl text-slate-400 mb-8">Gerenciador de Projetos (Em Breve)</p>
-            <div
-                class="inline-block p-1 rounded-xl bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-slate-700/50">
-                <div class="bg-slate-900 rounded-lg px-8 py-6">
-                    <p class="text-sm text-slate-500">Logado como</p>
-                    <p id="userDisplay" class="text-lg font-semibold text-white">...</p>
-                </div>
-            </div>
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-2xl font-bold">Gerenciar Usuários</h1>
+            <button onclick="openModal()"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+                <span>+</span> Novo Usuário
+            </button>
+        </div>
+
+        <div class="bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden backdrop-blur-sm">
+            <table class="w-full text-left text-sm text-slate-400">
+                <thead class="bg-slate-900/50 text-slate-200 uppercase text-xs font-semibold">
+                    <tr>
+                        <th class="px-6 py-4">ID</th>
+                        <th class="px-6 py-4">Usuário</th>
+                        <th class="px-6 py-4">Perfil</th>
+                        <th class="px-6 py-4">Criado em</th>
+                        <th class="px-6 py-4 text-right">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody" class="divide-y divide-slate-700/50">
+                    <!-- Users will be populated here -->
+                </tbody>
+            </table>
         </div>
     </main>
 
-    <script>
-        // Simple auth check stub
-        const user = localStorage.getItem('pylar_user');
-        if (!user) {
-            window.location.href = '/';
-        } else {
-            const userData = JSON.parse(user);
-            document.getElementById('userDisplay').textContent = userData.username;
-        }
+    <!-- Modal -->
+    <div id="userModal"
+        class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden items-center justify-center z-50 transition-opacity">
+        <div
+            class="bg-slate-800 border border-slate-700 rounded-xl shadow-2xl w-full max-w-md p-6 transform transition-all scale-100">
+            <h2 id="modalTitle" class="text-xl font-bold mb-4 text-white">Novo Usuário</h2>
+            <form id="userForm" class="space-y-4">
+                <input type="hidden" id="userId">
 
-        function logout() {
-            localStorage.removeItem('pylar_user');
-            window.location.href = '/';
-        }
-    </script>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Usuário</label>
+                    <input type="text" id="formUsername" required
+                        class="w-full px-3 py-2 rounded-lg bg-slate-900/50 border border-slate-600 text-white focus:outline-none focus:border-blue-500 transition-colors">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Senha <span id="passwordHint"
+                            class="text-xs text-slate-500 font-normal ml-1 hidden">(Deixe em branco para
+                            manter)</span></label>
+                    <input type="password" id="formPassword"
+                        class="w-full px-3 py-2 rounded-lg bg-slate-900/50 border border-slate-600 text-white focus:outline-none focus:border-blue-500 transition-colors">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Perfil</label>
+                    <select id="formRole"
+                        class="w-full px-3 py-2 rounded-lg bg-slate-900/50 border border-slate-600 text-white focus:outline-none focus:border-blue-500 transition-colors">
+                        <option value="Member">Member</option>
+                        <option value="Admin">Admin</option>
+                        <option value="SuperUser">SuperUser</option>
+                    </select>
+                </div>
+
+                <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" onclick="closeModal()"
+                        class="px-4 py-2 hover:text-white text-slate-400 transition-colors">Cancelar</button>
+                    <button type="submit"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/dashboard.js"></script>
 </body>
 
 </html>
