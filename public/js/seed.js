@@ -1,4 +1,5 @@
 const API_URL = '/api/users';
+const COMPANY_API_URL = '/api/companies';
 let currentUser = null;
 
 // Auth Check
@@ -9,11 +10,21 @@ function checkAuth() {
         return;
     }
     currentUser = JSON.parse(userStr);
+
+    // Security: Only SuperUser allowed
+    if (currentUser.role !== 'SuperUser') {
+        window.location.href = '/projects.html';
+        return;
+    }
+
     document.getElementById('userDisplay').textContent = currentUser.username;
     if (document.getElementById('companyDisplay')) {
         document.getElementById('companyDisplay').textContent = currentUser.company_name || '';
     }
     document.getElementById('roleDisplay').textContent = currentUser.role;
+
+    // Load initial data
+    fetchUsers();
 }
 
 function logout() {
@@ -21,7 +32,6 @@ function logout() {
     window.location.href = '/';
 }
 
-// Format Date
 function formatDate(dateString) {
     if (!dateString) return '-';
     return new Date(dateString).toLocaleDateString('pt-BR', {
@@ -30,7 +40,35 @@ function formatDate(dateString) {
     });
 }
 
-// Fetch and Render Users
+// --- Tabs Logic ---
+function switchTab(tab) {
+    const tabUsers = document.getElementById('tabUsers');
+    const tabCompanies = document.getElementById('tabCompanies');
+    const usersSection = document.getElementById('usersSection');
+    const companiesSection = document.getElementById('companiesSection');
+
+    if (tab === 'users') {
+        tabUsers.classList.add('text-white', 'border-b-2', 'border-blue-500');
+        tabUsers.classList.remove('text-slate-400');
+        tabCompanies.classList.remove('text-white', 'border-b-2', 'border-blue-500');
+        tabCompanies.classList.add('text-slate-400');
+
+        usersSection.classList.remove('hidden');
+        companiesSection.classList.add('hidden');
+        fetchUsers();
+    } else {
+        tabCompanies.classList.add('text-white', 'border-b-2', 'border-blue-500');
+        tabCompanies.classList.remove('text-slate-400');
+        tabUsers.classList.remove('text-white', 'border-b-2', 'border-blue-500');
+        tabUsers.classList.add('text-slate-400');
+
+        companiesSection.classList.remove('hidden');
+        usersSection.classList.add('hidden');
+        fetchCompanies();
+    }
+}
+
+// --- Users Management ---
 async function fetchUsers() {
     try {
         const res = await fetch(API_URL, {
@@ -45,11 +83,10 @@ async function fetchUsers() {
         tbody.innerHTML = '';
 
         users.forEach(user => {
-            // Separate Seed User (SuperUser)
             if (user.role === 'SuperUser') {
-                const seedDisplay = document.getElementById('seedUserDisplay');
-                if (seedDisplay) seedDisplay.textContent = user.username;
-                return; // Skip rendering in table
+                // Update seed display if needed
+                if (document.getElementById('seedUserDisplay')) document.getElementById('seedUserDisplay').textContent = user.username;
+                return;
             }
 
             const tr = document.createElement('tr');
@@ -79,9 +116,48 @@ async function fetchUsers() {
     }
 }
 
-// Modal Logic
-const modal = document.getElementById('userModal');
-const form = document.getElementById('userForm');
+// --- Companies Management ---
+async function fetchCompanies() {
+    try {
+        const res = await fetch(COMPANY_API_URL, {
+            headers: {
+                'x-company-id': currentUser.company_id,
+                'x-user-role': currentUser.role
+            }
+        });
+        const companies = await res.json();
+
+        const tbody = document.getElementById('companiesTableBody');
+        tbody.innerHTML = '';
+
+        companies.forEach(company => {
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-slate-800/30 transition-colors';
+            tr.innerHTML = `
+                <td class="px-6 py-4 font-mono text-slate-500">#${company.id}</td>
+                <td class="px-6 py-4 font-medium text-white">${company.name}</td>
+                <td class="px-6 py-4">${formatDate(company.created_at)}</td>
+                <td class="px-6 py-4 text-right space-x-2">
+                    <button onclick="editCompany(${company.id}, '${company.name}')" 
+                        class="text-green-400 hover:text-green-300 text-sm font-medium transition-colors">Editar</button>
+                    ${company.name !== 'System' ? `
+                    <button onclick="deleteCompany(${company.id})" 
+                        class="text-red-400 hover:text-red-300 text-sm font-medium transition-colors">Excluir</button>
+                    ` : ''}
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch (error) {
+        console.error('Error fetching companies:', error);
+        alert('Erro ao carregar empresas.');
+    }
+}
+
+
+// --- User Modal Logic ---
+const userModal = document.getElementById('userModal');
+const userForm = document.getElementById('userForm');
 const modalTitle = document.getElementById('modalTitle');
 const userIdInput = document.getElementById('userId');
 const usernameInput = document.getElementById('formUsername');
@@ -90,12 +166,11 @@ const roleInput = document.getElementById('formRole');
 const passwordHint = document.getElementById('passwordHint');
 
 function openModal(isEdit = false) {
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-
+    userModal.classList.remove('hidden');
+    userModal.classList.add('flex');
     if (!isEdit) {
         modalTitle.textContent = 'Novo Usuário';
-        form.reset();
+        userForm.reset();
         userIdInput.value = '';
         passwordHint.classList.add('hidden');
         passwordInput.required = true;
@@ -107,8 +182,8 @@ function openModal(isEdit = false) {
 }
 
 function closeModal() {
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
+    userModal.classList.add('hidden');
+    userModal.classList.remove('flex');
 }
 
 window.editUser = function (id, username, role) {
@@ -121,7 +196,6 @@ window.editUser = function (id, username, role) {
 
 window.deleteUser = async function (id) {
     if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
-
     try {
         const res = await fetch(`${API_URL}/${id}`, {
             method: 'DELETE',
@@ -130,31 +204,24 @@ window.deleteUser = async function (id) {
                 'x-user-role': currentUser.role
             }
         });
-        if (res.ok) {
-            fetchUsers();
-        } else {
-            alert('Erro ao excluir usuário');
-        }
+        if (res.ok) fetchUsers();
+        else alert('Erro ao excluir usuário');
     } catch (error) {
         console.error(error);
         alert('Erro ao excluir usuário');
     }
 };
 
-// Form Submit
-form.addEventListener('submit', async (e) => {
+userForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-
     const id = userIdInput.value;
-    const username = usernameInput.value;
-    const password = passwordInput.value;
-    const role = roleInput.value;
-
     const method = id ? 'PUT' : 'POST';
     const url = id ? `${API_URL}/${id}` : API_URL;
-
-    const body = { username, role };
-    if (password) body.password = password;
+    const body = {
+        username: usernameInput.value,
+        role: roleInput.value
+    };
+    if (passwordInput.value) body.password = passwordInput.value;
 
     try {
         const res = await fetch(url, {
@@ -166,9 +233,7 @@ form.addEventListener('submit', async (e) => {
             },
             body: JSON.stringify(body)
         });
-
         const data = await res.json();
-
         if (res.ok) {
             closeModal();
             fetchUsers();
@@ -181,15 +246,88 @@ form.addEventListener('submit', async (e) => {
     }
 });
 
-// Init
-checkAuth();
+// --- Company Modal Logic ---
+const companyModal = document.getElementById('companyModal');
+const companyForm = document.getElementById('companyForm');
+const companyModalTitle = document.getElementById('companyModalTitle');
+const companyIdInput = document.getElementById('companyId');
+const companyNameInput = document.getElementById('formCompanyName');
 
-// RBAC: Allow SuperUser AND Admin
-if (currentUser.role !== 'SuperUser' && currentUser.role !== 'Admin') {
-    window.location.href = '/projects.html';
-} else {
-    fetchUsers();
+window.openCompanyModal = function (isEdit = false) {
+    companyModal.classList.remove('hidden');
+    companyModal.classList.add('flex');
+    if (!isEdit) {
+        companyModalTitle.textContent = 'Nova Empresa';
+        companyForm.reset();
+        companyIdInput.value = '';
+    } else {
+        companyModalTitle.textContent = 'Editar Empresa';
+    }
 }
 
-// Ensure logout is available globally
+window.closeCompanyModal = function () {
+    companyModal.classList.add('hidden');
+    companyModal.classList.remove('flex');
+}
+
+window.editCompany = function (id, name) {
+    companyIdInput.value = id;
+    companyNameInput.value = name;
+    openCompanyModal(true);
+}
+
+window.deleteCompany = async function (id) {
+    if (!confirm('Tem certeza? Isso pode falhar se a empresa tiver usuários.')) return;
+    try {
+        const res = await fetch(`${COMPANY_API_URL}/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'x-company-id': currentUser.company_id,
+                'x-user-role': currentUser.role
+            }
+        });
+        const data = await res.json();
+        if (res.ok) {
+            fetchCompanies();
+        } else {
+            alert(data.message || 'Erro ao excluir empresa');
+        }
+    } catch (error) {
+        console.error(error);
+        alert('Erro ao excluir empresa');
+    }
+}
+
+companyForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = companyIdInput.value;
+    const method = id ? 'PUT' : 'POST';
+    const url = id ? `${COMPANY_API_URL}/${id}` : COMPANY_API_URL;
+
+    try {
+        const res = await fetch(url, {
+            method,
+            headers: {
+                'Content-Type': 'application/json',
+                'x-company-id': currentUser.company_id,
+                'x-user-role': currentUser.role
+            },
+            body: JSON.stringify({ name: companyNameInput.value })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            closeCompanyModal();
+            fetchCompanies();
+        } else {
+            alert(data.message || 'Erro ao salvar empresa');
+        }
+    } catch (error) {
+        console.error(error);
+        alert('Erro de conexão');
+    }
+});
+
+// Init
+checkAuth();
 window.logout = logout;
+window.switchTab = switchTab;

@@ -5,6 +5,7 @@ const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 const userRoutes = require('./routes/userRoutes');
+const companyRoutes = require('./routes/companyRoutes');
 
 // Middleware
 app.use(cors());
@@ -14,6 +15,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/companies', companyRoutes);
 
 // Serve index.html for root
 app.get('/', (req, res) => {
