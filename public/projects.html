@@ -11,64 +11,116 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0f172a;
         }
     </style>
 </head>
 
-<body class="text-slate-100 min-h-screen">
-    <nav class="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center">
-                    <span
-                        class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">Pylar</span>
-                </div>
-                <div class="flex items-center gap-4">
-                    <div class="text-sm text-slate-400">
-                        <span id="userDisplay" class="font-semibold text-white">...</span>
-                    </div>
-                    <button class="text-slate-400 hover:text-white transition-colors" onclick="logout()">
-                        Sair
-                    </button>
-                </div>
-            </div>
+<body class="bg-gray-900 text-gray-100 font-sans antialiased h-screen overflow-hidden flex">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-gray-800 border-r border-gray-700 hidden md:flex flex-col">
+        <div class="h-16 flex items-center px-6 border-b border-gray-700">
+            <span
+                class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">Pylar</span>
         </div>
-    </nav>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
-        <h1 class="text-4xl font-bold mb-4">Meus Projetos</h1>
-        <p class="text-xl text-slate-400 mb-8">Selecione um projeto para trabalhar</p>
+        <nav class="flex-1 px-4 py-4 space-y-2">
+            <!-- Navigation Links (Dynamic based on role logic in JS if needed, but safe to show both for structure, Admin hides one via JS?) 
+                 Actually, Member should ONLY see Projects. Admin sees both. we will handle hiding via JS or simple class toggle. -->
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Project Card Placeholder -->
-            <div
-                class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 hover:border-blue-500/50 transition-colors cursor-pointer group">
+            <a href="/dashboard.html" id="navUsers"
+                class="flex items-center px-4 py-3 text-gray-400 hover:text-white hover:bg-gray-700/30 rounded-lg transition-colors hidden">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+                    </path>
+                </svg>
+                Usuários
+            </a>
+            <a href="/projects.html"
+                class="flex items-center px-4 py-3 text-white bg-gray-700/50 rounded-lg border border-gray-600 transition-colors">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+                </svg>
+                Projetos
+            </a>
+        </nav>
+
+        <!-- User Profile -->
+        <div class="p-4 border-t border-gray-700">
+            <div class="flex items-center gap-3 mb-3">
                 <div
-                    class="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center mb-4 group-hover:bg-blue-500/20 transition-colors">
-                    <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
-                        </path>
-                    </svg>
+                    class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-xs font-bold">
+                    <span id="userInitials">...</span>
                 </div>
-                <h3 class="text-lg font-semibold text-white mb-2">Exemplo de Projeto</h3>
-                <p class="text-sm text-slate-400">Descrição curta do projeto para contexto inicial.</p>
+                <div class="overflow-hidden">
+                    <p id="userDisplay" class="text-sm font-medium text-white truncate">...</p>
+                    <p id="companyDisplay" class="text-xs text-gray-500 truncate">...</p>
+                </div>
             </div>
+            <button onclick="logout()"
+                class="w-full flex items-center justify-center px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-lg transition-colors">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                    </path>
+                </svg>
+                Sair
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto bg-gray-900 p-8">
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-2xl font-bold text-white">Projetos</h1>
+                <p class="text-gray-400 text-sm mt-1">Gerencie os projetos da sua empresa.</p>
+            </div>
+            <button onclick="openProjectModal()"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 shadow-lg shadow-blue-500/20">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Novo Projeto
+            </button>
+        </div>
+
+        <!-- Projects Grid -->
+        <div id="projectsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Populated by JS -->
         </div>
     </main>
 
-    <script>
-        const userStr = localStorage.getItem('pylar_user');
-        if (!userStr) window.location.href = '/';
-        const user = JSON.parse(userStr);
-        document.getElementById('userDisplay').textContent = user.username;
+    <!-- Project Modal -->
+    <div id="projectModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div
+            class="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl w-full max-w-md p-6 transform transition-all scale-100">
+            <h2 id="modalTitle" class="text-xl font-bold mb-4 text-white">Novo Projeto</h2>
+            <form id="projectForm" class="space-y-4">
+                <input type="hidden" id="projectId">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Nome do Projeto</label>
+                    <input type="text" id="formName" required
+                        class="w-full px-3 py-2 rounded-lg bg-gray-900 border border-gray-600 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Descrição</label>
+                    <textarea id="formDescription" rows="3"
+                        class="w-full px-3 py-2 rounded-lg bg-gray-900 border border-gray-600 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"></textarea>
+                </div>
+                <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" onclick="closeProjectModal()"
+                        class="px-4 py-2 hover:text-white text-gray-400 transition-colors">Cancelar</button>
+                    <button type="submit"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors font-medium">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-        function logout() {
-            localStorage.removeItem('pylar_user');
-            window.location.href = '/';
-        }
-    </script>
+    <script src="js/projects.js"></script>
 </body>
 
 </html>

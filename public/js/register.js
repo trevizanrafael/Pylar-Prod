@@ -1,6 +1,7 @@
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
+    const companyNameInput = document.getElementById('companyName');
     const usernameInput = document.getElementById('username');
     const passwordInput = document.getElementById('password');
     const errorMessage = document.getElementById('errorMessage');
@@ -8,22 +9,19 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 
     // Reset state
     errorMessage.classList.add('hidden');
-    usernameInput.classList.remove('border-red-500');
-    passwordInput.classList.remove('border-red-500');
 
     // Loading state
     const originalBtnText = submitBtn.innerText;
-    submitBtn.innerText = 'Entrando...';
+    submitBtn.innerText = 'Criando...';
     submitBtn.disabled = true;
     submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
 
     try {
-        const response = await fetch('/api/auth/login', {
+        const response = await fetch('/api/auth/register', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
+                companyName: companyNameInput.value,
                 username: usernameInput.value,
                 password: passwordInput.value
             })
@@ -32,22 +30,14 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         const data = await response.json();
 
         if (response.ok) {
-            // Save user info (insecure for real app, ok for MVP demo)
-            localStorage.setItem('pylar_user', JSON.stringify(data.user));
-
-            if (data.user.role === 'SuperUser') {
-                window.location.href = '/seed.html';
-            } else {
-                window.location.href = '/dashboard.html';
-            }
+            alert('Empresa criada com sucesso! Faça login para continuar.');
+            window.location.href = '/';
         } else {
-            throw new Error(data.message || 'Erro ao realizar login');
+            throw new Error(data.message || 'Erro ao criar empresa');
         }
     } catch (error) {
         errorMessage.textContent = error.message;
         errorMessage.classList.remove('hidden');
-        usernameInput.classList.add('border-red-500');
-        passwordInput.classList.add('border-red-500');
     } finally {
         submitBtn.innerText = originalBtnText;
         submitBtn.disabled = false;

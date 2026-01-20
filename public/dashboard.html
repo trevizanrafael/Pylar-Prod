@@ -11,127 +11,193 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0f172a;
         }
     </style>
 </head>
 
-<body class="text-slate-100 min-h-screen">
-    <nav class="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center">
-                    <span
-                        class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">Pylar</span>
-                </div>
-                <div class="flex items-center gap-4">
-                    <div class="text-sm text-slate-400">
-                        <span id="userDisplay" class="font-semibold text-white">...</span>
-                        <span id="roleDisplay" class="text-xs bg-slate-800 px-2 py-0.5 rounded ml-2">...</span>
-                    </div>
-                    <button class="text-slate-400 hover:text-white transition-colors" onclick="logout()">
-                        Sair
-                    </button>
-                </div>
-            </div>
-        </div>
-    </nav>
+<body class="bg-gray-900 text-gray-100 font-sans antialiased h-screen overflow-hidden flex">
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <!-- Seed User Section -->
-        <div class="mb-10">
-            <h2 class="text-sm uppercase tracking-wide text-slate-500 font-semibold mb-3">Administrador do Sistema
-                (Seed)</h2>
-            <div
-                class="bg-gradient-to-r from-purple-900/40 to-blue-900/40 border border-purple-500/30 rounded-xl p-4 flex items-center justify-between">
-                <div class="flex items-center gap-4">
-                    <div
-                        class="h-10 w-10 rounded-full bg-purple-500/20 flex items-center justify-center border border-purple-500/50">
-                        <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
-                            </path>
-                        </svg>
-                    </div>
-                    <div>
-                        <p id="seedUserDisplay" class="font-bold text-white">Carregando...</p>
-                        <p class="text-xs text-purple-300">Acesso Total · Imutável</p>
-                    </div>
-                </div>
-                <div class="px-3 py-1 bg-purple-500/20 rounded text-xs text-purple-300 border border-purple-500/30">
-                    SuperUser
-                </div>
-            </div>
+    <!-- Sidebar -->
+    <aside class="w-64 bg-gray-800 border-r border-gray-700 hidden md:flex flex-col">
+        <div class="h-16 flex items-center px-6 border-b border-gray-700">
+            <span
+                class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">Pylar</span>
         </div>
 
-        <div class="flex justify-between items-center mb-8">
-            <h1 class="text-2xl font-bold">Gerenciar Usuários</h1>
-            <button onclick="openModal()"
-                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
-                <span>+</span> Novo Usuário
+        <nav class="flex-1 px-4 py-4 space-y-2">
+            <!-- Users Link (Admin Only) -->
+            <a href="#" id="navUsers" onclick="switchTab('users'); return false;"
+                class="flex items-center px-4 py-3 text-gray-400 hover:text-white hover:bg-gray-700/30 rounded-lg transition-colors hidden">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+                    </path>
+                </svg>
+                Usuários
+            </a>
+            <!-- Projects Link (All) -->
+            <a href="#" id="navProjects" onclick="switchTab('projects'); return false;"
+                class="flex items-center px-4 py-3 text-gray-400 hover:text-white hover:bg-gray-700/30 rounded-lg transition-colors">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+                </svg>
+                Projetos
+            </a>
+        </nav>
+
+        <!-- User Profile -->
+        <div class="p-4 border-t border-gray-700">
+            <div class="flex items-center gap-3 mb-3">
+                <div
+                    class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-xs font-bold">
+                    <span id="userInitials">...</span>
+                </div>
+                <div class="overflow-hidden">
+                    <p id="userDisplay" class="text-sm font-medium text-white truncate">...</p>
+                    <p id="companyDisplay" class="text-xs text-gray-500 truncate">...</p>
+                </div>
+            </div>
+            <button onclick="logout()"
+                class="w-full flex items-center justify-center px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-lg transition-colors">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                    </path>
+                </svg>
+                Sair
             </button>
         </div>
+    </aside>
 
-        <div class="bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden backdrop-blur-sm">
-            <table class="w-full text-left text-sm text-slate-400">
-                <thead class="bg-slate-900/50 text-slate-200 uppercase text-xs font-semibold">
-                    <tr>
-                        <th class="px-6 py-4">ID</th>
-                        <th class="px-6 py-4">Usuário</th>
-                        <th class="px-6 py-4">Perfil</th>
-                        <th class="px-6 py-4">Criado em</th>
-                        <th class="px-6 py-4 text-right">Ações</th>
-                    </tr>
-                </thead>
-                <tbody id="usersTableBody" class="divide-y divide-slate-700/50">
-                    <!-- Users will be populated here -->
-                </tbody>
-            </table>
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto bg-gray-900 p-8">
+
+        <!-- Users Section -->
+        <div id="usersSection" class="hidden">
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h1 class="text-2xl font-bold text-white">Gerenciar Usuários</h1>
+                    <p class="text-gray-400 text-sm mt-1">Membros da sua organização.</p>
+                </div>
+                <button onclick="openModal()"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 shadow-lg shadow-blue-500/20">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Novo Usuário
+                </button>
+            </div>
+
+            <!-- Users Table -->
+            <div class="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden shadow-xl">
+                <table class="w-full text-left text-sm text-gray-400">
+                    <thead class="bg-gray-700/50 text-gray-300 uppercase text-xs font-semibold">
+                        <tr>
+                            <th class="px-6 py-4">Nome</th>
+                            <th class="px-6 py-4">Perfil</th>
+                            <th class="px-6 py-4">Criado em</th>
+                            <th class="px-6 py-4 text-right">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody" class="divide-y divide-gray-700">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
         </div>
+
+        <!-- Projects Section -->
+        <div id="projectsSection" class="hidden">
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h1 class="text-2xl font-bold text-white">Projetos</h1>
+                    <p class="text-gray-400 text-sm mt-1">Gerencie os projetos da sua empresa.</p>
+                </div>
+                <button onclick="openProjectModal()"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 shadow-lg shadow-blue-500/20">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Novo Projeto
+                </button>
+            </div>
+
+            <!-- Projects Grid -->
+            <div id="projectsGrid" class="grid grid-cols-1 gap-6">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
     </main>
 
-    <!-- Modal -->
-    <div id="userModal"
-        class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden items-center justify-center z-50 transition-opacity">
+    <!-- User Modal -->
+    <div id="userModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50">
         <div
-            class="bg-slate-800 border border-slate-700 rounded-xl shadow-2xl w-full max-w-md p-6 transform transition-all scale-100">
+            class="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl w-full max-w-md p-6 transform transition-all scale-100">
             <h2 id="modalTitle" class="text-xl font-bold mb-4 text-white">Novo Usuário</h2>
             <form id="userForm" class="space-y-4">
                 <input type="hidden" id="userId">
-
                 <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-1">Usuário</label>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Nome de Usuário</label>
                     <input type="text" id="formUsername" required
-                        class="w-full px-3 py-2 rounded-lg bg-slate-900/50 border border-slate-600 text-white focus:outline-none focus:border-blue-500 transition-colors">
+                        class="w-full px-3 py-2 rounded-lg bg-gray-900 border border-gray-600 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors">
                 </div>
-
                 <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-1">Senha <span id="passwordHint"
-                            class="text-xs text-slate-500 font-normal ml-1 hidden">(Deixe em branco para
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Senha <span id="passwordHint"
+                            class="text-xs text-gray-500 hidden font-normal ml-1">(Deixe em branco para
                             manter)</span></label>
                     <input type="password" id="formPassword"
-                        class="w-full px-3 py-2 rounded-lg bg-slate-900/50 border border-slate-600 text-white focus:outline-none focus:border-blue-500 transition-colors">
+                        class="w-full px-3 py-2 rounded-lg bg-gray-900 border border-gray-600 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors">
                 </div>
-
                 <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-1">Perfil</label>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Perfil</label>
                     <select id="formRole"
-                        class="w-full px-3 py-2 rounded-lg bg-slate-900/50 border border-slate-600 text-white focus:outline-none focus:border-blue-500 transition-colors">
-                        <option value="Member">Member</option>
+                        class="w-full px-3 py-2 rounded-lg bg-gray-900 border border-gray-600 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors">
+                        <option value="Member">Membro</option>
                         <option value="Admin">Admin</option>
                     </select>
                 </div>
-
                 <div class="flex justify-end gap-3 mt-6">
                     <button type="button" onclick="closeModal()"
-                        class="px-4 py-2 hover:text-white text-slate-400 transition-colors">Cancelar</button>
+                        class="px-4 py-2 hover:text-white text-gray-400 transition-colors">Cancelar</button>
                     <button type="submit"
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">Salvar</button>
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors font-medium">Salvar</button>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- Project Modal -->
+    <div id="projectModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div
+            class="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl w-full max-w-md p-6 transform transition-all scale-100">
+            <h2 id="projectModalTitle" class="text-xl font-bold mb-4 text-white">Novo Projeto</h2>
+            <form id="projectForm" class="space-y-4">
+                <input type="hidden" id="projectId">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Nome do Projeto</label>
+                    <input type="text" id="projectFormName" required
+                        class="w-full px-3 py-2 rounded-lg bg-gray-900 border border-gray-600 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Descrição</label>
+                    <textarea id="projectFormDescription" rows="3"
+                        class="w-full px-3 py-2 rounded-lg bg-gray-900 border border-gray-600 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"></textarea>
+                </div>
+                <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" onclick="closeProjectModal()"
+                        class="px-4 py-2 hover:text-white text-gray-400 transition-colors">Cancelar</button>
+                    <button type="submit"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors font-medium">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Marked.js -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     <script src="js/dashboard.js"></script>
 </body>
 
