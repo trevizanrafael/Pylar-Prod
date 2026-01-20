@@ -56,6 +56,16 @@ class UserController {
             const { id } = req.params;
             const { username, password, role } = req.body;
 
+            // Protect Seed User
+            const targetUser = await userModel.findById(id, null);
+            if (targetUser && targetUser.role === 'SuperUser') {
+                // Allow password update? Maybe, but definitely not role degradation
+                if (role !== 'SuperUser') {
+                    return res.status(403).json({ message: 'Cannot change SuperUser role' });
+                }
+                // Optional: Prevent username change too if desired
+            }
+
             // If SuperUser, pass null as companyId to allow global update
             const scopeCompanyId = userRole === 'SuperUser' ? null : companyId;
 
@@ -83,6 +93,20 @@ class UserController {
             }
 
             const { id } = req.params;
+
+            // Protect Seed User (ID 1 usually, or role SuperUser check)
+            // Best to check if target user is SuperUser
+            const targetUser = await userModel.findById(id, null); // null companyId to find global
+            if (targetUser && targetUser.role === 'SuperUser') {
+                return res.status(403).json({ message: 'Cannot delete SuperUser' });
+            }
+
+            // Prevent Self-Deletion
+            const requestingUserId = req.headers['x-requesting-user-id'];
+            if (requestingUserId && parseInt(requestingUserId) === parseInt(id)) {
+                return res.status(403).json({ message: 'You cannot delete yourself' });
+            }
+
             // If SuperUser, pass null as companyId to allow global delete
             const scopeCompanyId = userRole === 'SuperUser' ? null : companyId;
 

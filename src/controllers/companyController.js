@@ -46,6 +46,13 @@ class CompanyController {
             if (!name) {
                 return res.status(400).json({ message: 'Company name is required' });
             }
+
+            // Prevent renaming System company
+            const company = await companyModel.findById(id);
+            if (company && (company.name === 'System' || company.id === 0)) {
+                return res.status(403).json({ message: 'Cannot modify System company' });
+            }
+
             const updatedCompany = await companyModel.update(id, name);
             if (!updatedCompany) {
                 return res.status(404).json({ message: 'Company not found' });
@@ -62,7 +69,7 @@ class CompanyController {
             const { id } = req.params;
             // Prevent deleting System company
             const company = await companyModel.findById(id);
-            if (company && company.name === 'System') {
+            if (company && (company.name === 'System' || company.id === 0)) {
                 return res.status(403).json({ message: 'Cannot delete System company' });
             }
 

@@ -37,10 +37,8 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 
             if (data.user.role === 'SuperUser') {
                 window.location.href = '/seed.html';
-            } else if (data.user.role === 'Admin') {
-                window.location.href = '/dashboard.html';
             } else {
-                window.location.href = '/projects.html';
+                window.location.href = '/dashboard.html';
             }
         } else {
             throw new Error(data.message || 'Erro ao realizar login');
