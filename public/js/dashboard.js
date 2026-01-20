@@ -127,6 +127,8 @@ async function fetchUsers() {
 }
 
 // --- Projects Logic ---
+let currentProjects = [];
+
 async function fetchProjects() {
     try {
         const res = await fetch(PROJECTS_API_URL, {
@@ -135,24 +137,39 @@ async function fetchProjects() {
                 'x-user-role': currentUser.role
             }
         });
-        const projects = await res.json();
+        currentProjects = await res.json();
         const grid = document.getElementById('projectsGrid');
         grid.innerHTML = '';
 
-        projects.forEach(project => {
+        currentProjects.forEach(project => {
             const card = document.createElement('div');
-            card.className = 'bg-gray-800/50 border border-gray-700 rounded-xl p-6 hover:border-blue-500/50 transition-colors group relative';
+            card.className = 'bg-gray-800/50 border border-gray-700 rounded-xl p-6 hover:border-blue-500/50 transition-colors group relative flex flex-col';
+
+            // Parse Markdown (handle empty/null)
+            const descriptionHtml = project.description ? marked.parse(project.description) : '<p class="text-slate-500 italic">Sem descrição.</p>';
+
             card.innerHTML = `
-                <div class="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center mb-4 group-hover:bg-blue-500/20 transition-colors">
-                    <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                    </svg>
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                         <div class="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center group-hover:bg-blue-500/20 transition-colors">
+                            <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-white">${project.name}</h3>
+                    </div>
+                    <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                         <button onclick="editProject(${project.id})" class="p-2 text-blue-400 hover:text-blue-300 hover:bg-blue-400/10 rounded-lg transition-colors" title="Editar">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                         </button>
+                         <button onclick="deleteProject(${project.id})" class="p-2 text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-lg transition-colors" title="Excluir">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                         </button>
+                    </div>
                 </div>
-                <h3 class="text-lg font-semibold text-white mb-2">${project.name}</h3>
-                <p class="text-sm text-slate-400 mb-4 line-clamp-2">${project.description || 'Sem descrição.'}</p>
-                <div class="flex justify-end gap-2 mt-auto">
-                    <button onclick="editProject(${project.id}, '${project.name}', '${project.description || ''}')" class="text-blue-400 hover:text-blue-300 text-xs uppercase font-bold tracking-wider">Editar</button>
-                    <button onclick="deleteProject(${project.id})" class="text-red-400 hover:text-red-300 text-xs uppercase font-bold tracking-wider">Excluir</button>
+                
+                <div class="prose prose-invert prose-sm max-w-none text-slate-300">
+                    ${descriptionHtml}
                 </div>
             `;
             grid.appendChild(card);
@@ -256,10 +273,14 @@ window.closeProjectModal = function () {
     projectModal.classList.remove('flex');
 }
 
-window.editProject = function (id, name, description) {
-    projectIdInput.value = id;
-    projectNameInput.value = name;
-    projectDescInput.value = description;
+window.editProject = function (id) {
+    // Ensure ID comparison works (string vs number)
+    const project = currentProjects.find(p => p.id == id);
+    if (!project) return;
+
+    projectIdInput.value = project.id;
+    projectNameInput.value = project.name;
+    projectDescInput.value = project.description || '';
     openProjectModal(true);
 }
 
