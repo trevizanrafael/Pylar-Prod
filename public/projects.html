@@ -59,17 +59,7 @@
         </div>
     </main>
 
-    <script>
-        const userStr = localStorage.getItem('pylar_user');
-        if (!userStr) window.location.href = '/';
-        const user = JSON.parse(userStr);
-        document.getElementById('userDisplay').textContent = user.username;
-
-        function logout() {
-            localStorage.removeItem('pylar_user');
-            window.location.href = '/';
-        }
-    </script>
+    <script src="js/projects.js"></script>
 </body>
 
 </html>
