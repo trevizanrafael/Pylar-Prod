@@ -14,23 +14,29 @@
             background-color: #0f172a;
         }
     </style>
+    <link rel="icon" type="image/x-icon" href="/favicon.png">
 </head>
 
 <body class="text-slate-100 min-h-screen">
-    <nav class="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
+    <nav class="border-b border-white/5 bg-slate-900/60 backdrop-blur-xl sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
+            <div class="flex items-center justify-between h-20">
                 <div class="flex items-center">
-                    <span
-                        class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">Pylar</span>
+                    <img src="/logo.png" alt="Pylar Logo"
+                        class="h-14 w-auto filter drop-shadow-[0_0_8px_rgba(147,51,234,0.5)]">
                 </div>
-                <div class="flex items-center gap-4">
-                    <div class="text-sm text-slate-400">
-                        <span id="userDisplay" class="font-semibold text-white">...</span>
-                        <span id="companyDisplay" class="text-xs text-slate-500 ml-1">...</span>
-                        <span id="roleDisplay" class="text-xs bg-slate-800 px-2 py-0.5 rounded ml-2">...</span>
+                <div class="flex items-center gap-6">
+                    <div class="text-right hidden sm:block">
+                        <p id="userDisplay" class="font-bold text-white text-sm">...</p>
+                        <div class="flex items-center justify-end gap-2">
+                            <span id="companyDisplay" class="text-xs text-slate-400">...</span>
+                            <span id="roleDisplay"
+                                class="text-[10px] bg-purple-500/10 text-purple-300 border border-purple-500/20 px-1.5 py-0.5 rounded uppercase tracking-wider">...</span>
+                        </div>
                     </div>
-                    <button class="text-slate-400 hover:text-white transition-colors" onclick="logout()">
+                    <button
+                        class="text-slate-400 hover:text-white transition-colors bg-white/5 hover:bg-white/10 px-4 py-2 rounded-lg text-sm font-medium"
+                        onclick="logout()">
                         Sair
                     </button>
                 </div>
@@ -44,22 +50,23 @@
             <h2 class="text-sm uppercase tracking-wide text-slate-500 font-semibold mb-3">Administrador do Sistema
                 (Seed)</h2>
             <div
-                class="bg-gradient-to-r from-purple-900/40 to-blue-900/40 border border-purple-500/30 rounded-xl p-4 flex items-center justify-between">
-                <div class="flex items-center gap-4">
+                class="bg-gradient-to-r from-purple-900/20 to-blue-900/20 border border-purple-500/20 rounded-2xl p-6 flex items-center justify-between backdrop-blur-md">
+                <div class="flex items-center gap-5">
                     <div
-                        class="h-10 w-10 rounded-full bg-purple-500/20 flex items-center justify-center border border-purple-500/50">
-                        <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="h-14 w-14 rounded-2xl bg-gradient-to-tr from-purple-600 to-blue-600 flex items-center justify-center shadow-lg shadow-purple-900/30">
+                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
                             </path>
                         </svg>
                     </div>
                     <div>
-                        <p id="seedUserDisplay" class="font-bold text-white">Carregando...</p>
-                        <p class="text-xs text-purple-300">Acesso Total · Imutável</p>
+                        <p id="seedUserDisplay" class="text-xl font-bold text-white mb-0.5">Carregando...</p>
+                        <p class="text-sm text-purple-300/80">Acesso Irrestrito ao Sistema</p>
                     </div>
                 </div>
-                <div class="px-3 py-1 bg-purple-500/20 rounded text-xs text-purple-300 border border-purple-500/30">
+                <div
+                    class="px-4 py-1.5 bg-purple-500/10 rounded-full text-xs font-bold text-purple-300 border border-purple-500/20 tracking-wide uppercase">
                     SuperUser
                 </div>
             </div>
@@ -82,19 +89,19 @@
                 </button>
             </div>
 
-            <div class="bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden backdrop-blur-sm">
+            <div class="bg-slate-900/40 border border-white/5 rounded-2xl overflow-hidden backdrop-blur-md shadow-xl">
                 <table class="w-full text-left text-sm text-slate-400">
-                    <thead class="bg-slate-900/50 text-slate-200 uppercase text-xs font-semibold">
+                    <thead class="bg-black/20 text-slate-200 uppercase text-xs font-bold tracking-wider">
                         <tr>
-                            <th class="px-6 py-4">ID</th>
-                            <th class="px-6 py-4">Usuário</th>
-                            <th class="px-6 py-4">Empresa</th>
-                            <th class="px-6 py-4">Perfil</th>
-                            <th class="px-6 py-4">Criado em</th>
-                            <th class="px-6 py-4 text-right">Ações</th>
+                            <th class="px-6 py-5">ID</th>
+                            <th class="px-6 py-5">Usuário</th>
+                            <th class="px-6 py-5">Empresa</th>
+                            <th class="px-6 py-5">Perfil</th>
+                            <th class="px-6 py-5">Criado em</th>
+                            <th class="px-6 py-5 text-right">Ações</th>
                         </tr>
                     </thead>
-                    <tbody id="usersTableBody" class="divide-y divide-slate-700/50">
+                    <tbody id="usersTableBody" class="divide-y divide-white/5">
                         <!-- Users will be populated here -->
                     </tbody>
                 </table>
@@ -111,17 +118,17 @@
                 </button>
             </div>
 
-            <div class="bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden backdrop-blur-sm">
+            <div class="bg-slate-900/40 border border-white/5 rounded-2xl overflow-hidden backdrop-blur-md shadow-xl">
                 <table class="w-full text-left text-sm text-slate-400">
-                    <thead class="bg-slate-900/50 text-slate-200 uppercase text-xs font-semibold">
+                    <thead class="bg-black/20 text-slate-200 uppercase text-xs font-bold tracking-wider">
                         <tr>
-                            <th class="px-6 py-4">ID</th>
-                            <th class="px-6 py-4">Nome</th>
-                            <th class="px-6 py-4">Criado em</th>
-                            <th class="px-6 py-4 text-right">Ações</th>
+                            <th class="px-6 py-5">ID</th>
+                            <th class="px-6 py-5">Nome</th>
+                            <th class="px-6 py-5">Criado em</th>
+                            <th class="px-6 py-5 text-right">Ações</th>
                         </tr>
                     </thead>
-                    <tbody id="companiesTableBody" class="divide-y divide-slate-700/50">
+                    <tbody id="companiesTableBody" class="divide-y divide-white/5">
                         <!-- Companies will be populated here -->
                     </tbody>
                 </table>

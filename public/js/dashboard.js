@@ -84,8 +84,10 @@ function switchTab(tab) {
     // Helper: Toggle active class
     const setActive = (el, active) => {
         if (!el) return;
-        const activeClass = ['bg-gray-700/50', 'text-white', 'border', 'border-gray-600'];
-        const inactiveClass = ['text-gray-400', 'hover:text-white', 'hover:bg-gray-700/30'];
+        // The 'nav-item-active' class is defined in dashboard.html styles
+        const activeClass = ['nav-item-active'];
+        const inactiveClass = ['text-slate-400', 'hover:text-white', 'hover:bg-white/5'];
+
         if (active) {
             el.classList.add(...activeClass);
             el.classList.remove(...inactiveClass);
@@ -132,11 +134,11 @@ async function fetchRoles() {
 
         res.forEach(role => {
             const tr = document.createElement('tr');
-            tr.className = 'hover:bg-gray-800/50 transition-colors border-b border-gray-700/50 last:border-0';
+            tr.className = 'hover:bg-white/5 transition-colors border-b border-white/5 last:border-0';
             tr.innerHTML = `
                 <td class="px-6 py-4 font-medium text-white">${role.name}</td>
                 <td class="px-6 py-4 text-right space-x-2">
-                    <button onclick='editRole(${JSON.stringify(role)})' class="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors">Editar</button>
+                    <button onclick='editRole(${JSON.stringify(role)})' class="text-cyan-400 hover:text-cyan-300 text-sm font-medium transition-colors">Editar</button>
                     <button onclick="deleteRole(${role.id})" class="text-red-400 hover:text-red-300 text-sm font-medium transition-colors">Excluir</button>
                 </td>
             `;
@@ -287,16 +289,16 @@ async function fetchUsers() {
         users.forEach(user => {
             const isMe = user.username === currentUser.username;
             const tr = document.createElement('tr');
-            tr.className = 'hover:bg-gray-800/50 transition-colors border-b border-gray-700/50 last:border-0';
+            tr.className = 'hover:bg-white/5 transition-colors border-b border-white/5 last:border-0';
             tr.innerHTML = `
                 <td class="px-6 py-4 font-medium text-white">
                     ${user.username} 
-                    ${isMe ? '<span class="ml-2 text-xs text-blue-400 font-bold bg-blue-400/10 px-2 py-0.5 rounded-full border border-blue-400/20">(Você!)</span>' : ''}
+                    ${isMe ? '<span class="ml-2 text-xs text-cyan-400 font-bold bg-cyan-400/10 px-2 py-0.5 rounded-full border border-cyan-400/20">(Você!)</span>' : ''}
                 </td>
                 <td class="px-6 py-4">
-                     <span class="px-2 py-1 rounded text-xs border ${user.role === 'Admin' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' : 'bg-blue-500/10 text-blue-400 border-blue-500/20'}">${user.role}</span>
+                     <span class="px-2 py-1 rounded text-xs border ${user.role === 'Admin' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'}">${user.role}</span>
                 </td>
-                <td class="px-6 py-4 text-gray-400">${formatDate(user.created_at)}</td>
+                <td class="px-6 py-4 text-slate-400">${formatDate(user.created_at)}</td>
                 <td class="px-6 py-4 text-right space-x-2">
                     <button onclick="editUser(${user.id}, '${user.username}', '${user.role}')" class="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors">Editar</button>
                     ${!isMe ? `<button onclick="deleteUser(${user.id})" class="text-red-400 hover:text-red-300 text-sm font-medium transition-colors">Excluir</button>` : ''}

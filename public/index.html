@@ -11,66 +11,96 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0f172a;
-            /* Slate 900 */
+            background-color: #050507;
+            /* Ultra Dark */
         }
 
         .glass {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: float 10s infinite ease-in-out;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0);
+            }
+
+            50% {
+                transform: translate(20px, -20px);
+            }
         }
     </style>
+    <link rel="icon" type="image/x-icon" href="/logo.png">
 </head>
 
 <body class="h-screen flex items-center justify-center text-slate-100 relative overflow-hidden">
 
     <!-- Decorative blobs -->
+    <div class="blob bg-purple-600 w-96 h-96 top-0 left-0 mix-blend-screen"></div>
+    <div class="blob bg-cyan-600 w-96 h-96 bottom-0 right-0 mix-blend-screen animation-delay-2000"></div>
     <div
-        class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob">
-    </div>
-    <div
-        class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000">
+        class="blob bg-blue-600 w-64 h-64 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 mix-blend-screen opacity-20">
     </div>
 
     <div
-        class="w-full max-w-md p-8 rounded-2xl glass shadow-2xl relative z-10 transition-all duration-300 hover:shadow-purple-900/20">
-        <div class="text-center mb-8">
-            <h1
-                class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 mb-2">
-                Pylar</h1>
-            <p class="text-slate-400 text-sm">Entre para gerenciar seus projetos</p>
+        class="w-full max-w-md p-8 rounded-2xl glass relative z-10 transition-all duration-500 hover:border-white/10 hover:shadow-cyan-500/10">
+        <div class="text-center mb-10">
+            <div class="relative inline-block group">
+                <div
+                    class="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-lg blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200">
+                </div>
+                <img src="/logo.png" alt="Pylar Logo"
+                    class="relative h-24 w-auto mx-auto mb-6 transform transition-transform hover:scale-105">
+            </div>
+            <p class="text-slate-400 text-sm font-medium tracking-wide">ACESSO RESTRITO AO SISTEMA</p>
         </div>
 
         <form id="loginForm" class="space-y-6">
-            <div>
-                <label for="username" class="block text-sm font-medium text-slate-300 mb-2">Usuário</label>
+            <div class="space-y-1">
+                <label for="username"
+                    class="block text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Usuário</label>
                 <input type="text" id="username" name="username" required
-                    class="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-slate-700 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    class="w-full px-4 py-3 rounded-xl bg-slate-900/50 border border-slate-700/50 text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all duration-300 shadow-inner"
                     placeholder="Digite seu usuário">
             </div>
 
-            <div>
-                <label for="password" class="block text-sm font-medium text-slate-300 mb-2">Senha</label>
+            <div class="space-y-1">
+                <label for="password"
+                    class="block text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Senha</label>
                 <input type="password" id="password" name="password" required
-                    class="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-slate-700 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    class="w-full px-4 py-3 rounded-xl bg-slate-900/50 border border-slate-700/50 text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all duration-300 shadow-inner"
                     placeholder="••••••••">
             </div>
 
             <div id="errorMessage"
-                class="hidden text-red-400 text-sm text-center bg-red-900/20 p-2 rounded border border-red-900/50">
+                class="hidden text-red-300 text-sm text-center bg-red-900/20 p-3 rounded-xl border border-red-500/20 backdrop-blur-sm">
             </div>
 
             <button type="submit"
-                class="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900 transition-all transform hover:scale-[1.02]">
-                Entrar
+                class="w-full py-3.5 px-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold tracking-wide rounded-xl shadow-lg shadow-cyan-900/20 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-slate-900 transition-all transform hover:-translate-y-0.5 hover:shadow-cyan-500/40">
+                ENTRAR NO SISTEMA
             </button>
         </form>
 
-        <div class="mt-6 text-center">
-            <a href="/register.html" class="text-sm text-slate-400 hover:text-white transition-colors">Não tem login nem
-                empresa? Criar empresa</a>
+        <div class="mt-8 text-center">
+            <a href="/register.html"
+                class="text-xs text-slate-500 hover:text-cyan-400 transition-colors duration-300 font-medium">
+                Não tem conta? <span
+                    class="text-slate-400 underline decoration-slate-700 hover:decoration-cyan-500">Criar Empresa</span>
+            </a>
         </div>
     </div>
 

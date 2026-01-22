@@ -48,18 +48,18 @@ function switchTab(tab) {
     const companiesSection = document.getElementById('companiesSection');
 
     if (tab === 'users') {
-        tabUsers.classList.add('text-white', 'border-b-2', 'border-blue-500');
+        tabUsers.classList.add('text-white', 'border-b-2', 'border-cyan-500');
         tabUsers.classList.remove('text-slate-400');
-        tabCompanies.classList.remove('text-white', 'border-b-2', 'border-blue-500');
+        tabCompanies.classList.remove('text-white', 'border-b-2', 'border-cyan-500');
         tabCompanies.classList.add('text-slate-400');
 
         usersSection.classList.remove('hidden');
         companiesSection.classList.add('hidden');
         fetchUsers();
     } else {
-        tabCompanies.classList.add('text-white', 'border-b-2', 'border-blue-500');
+        tabCompanies.classList.add('text-white', 'border-b-2', 'border-cyan-500');
         tabCompanies.classList.remove('text-slate-400');
-        tabUsers.classList.remove('text-white', 'border-b-2', 'border-blue-500');
+        tabUsers.classList.remove('text-white', 'border-b-2', 'border-cyan-500');
         tabUsers.classList.add('text-slate-400');
 
         companiesSection.classList.remove('hidden');
@@ -90,7 +90,7 @@ async function fetchUsers() {
             }
 
             const tr = document.createElement('tr');
-            tr.className = 'hover:bg-slate-800/30 transition-colors';
+            tr.className = 'hover:bg-white/5 transition-colors border-b border-white/5 last:border-0';
             tr.innerHTML = `
                 <td class="px-6 py-4 font-mono text-slate-500">#${user.id}</td>
                 <td class="px-6 py-4 font-medium text-white">${user.username}</td>
@@ -101,7 +101,7 @@ async function fetchUsers() {
                 <td class="px-6 py-4">${formatDate(user.created_at)}</td>
                 <td class="px-6 py-4 text-right space-x-2">
                     <button onclick="editUser(${user.id}, '${user.username}', '${user.role}')" 
-                        class="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors">Editar</button>
+                        class="text-cyan-400 hover:text-cyan-300 text-sm font-medium transition-colors">Editar</button>
                     ${user.username !== currentUser.username ? `
                     <button onclick="deleteUser(${user.id})" 
                         class="text-red-400 hover:text-red-300 text-sm font-medium transition-colors">Excluir</button>
@@ -132,7 +132,7 @@ async function fetchCompanies() {
 
         companies.forEach(company => {
             const tr = document.createElement('tr');
-            tr.className = 'hover:bg-slate-800/30 transition-colors';
+            tr.className = 'hover:bg-white/5 transition-colors border-b border-white/5 last:border-0';
             tr.innerHTML = `
                 <td class="px-6 py-4 font-mono text-slate-500">#${company.id}</td>
                 <td class="px-6 py-4 font-medium text-white">${company.name}</td>
