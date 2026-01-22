@@ -22,6 +22,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/companies', companyRoutes);
 app.use('/api/projects', projectRoutes);
+app.use('/api/roles', require('./routes/roleRoutes'));
 
 // Serve index.html for root
 app.get('/', (req, res) => {

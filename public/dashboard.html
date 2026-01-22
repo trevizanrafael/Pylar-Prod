@@ -35,6 +35,16 @@
                 </svg>
                 Usuários
             </a>
+            <!-- Roles Link (Dynamic) -->
+            <a href="#" id="navRoles" onclick="switchTab('roles'); return false;"
+                class="flex items-center px-4 py-3 text-gray-400 hover:text-white hover:bg-gray-700/30 rounded-lg transition-colors hidden">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+                    </path>
+                </svg>
+                Cargos
+            </a>
             <!-- Projects Link (All) -->
             <a href="#" id="navProjects" onclick="switchTab('projects'); return false;"
                 class="flex items-center px-4 py-3 text-gray-400 hover:text-white hover:bg-gray-700/30 rounded-lg transition-colors">
@@ -72,6 +82,37 @@
 
     <!-- Main Content -->
     <main class="flex-1 overflow-y-auto bg-gray-900 p-8">
+
+        <!-- Roles Section -->
+        <div id="rolesSection" class="hidden">
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h1 class="text-2xl font-bold text-white">Gerenciar Cargos</h1>
+                    <p class="text-gray-400 text-sm mt-1">Defina perfis de acesso e permissões.</p>
+                </div>
+                <button onclick="openRoleModal()"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 shadow-lg shadow-blue-500/20">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Novo Cargo
+                </button>
+            </div>
+
+            <div class="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden shadow-xl">
+                <table class="w-full text-left text-sm text-gray-400">
+                    <thead class="bg-gray-700/50 text-gray-300 uppercase text-xs font-semibold">
+                        <tr>
+                            <th class="px-6 py-4">Nome do Cargo</th>
+                            <th class="px-6 py-4 text-right">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rolesTableBody" class="divide-y divide-gray-700">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
         <!-- Users Section -->
         <div id="usersSection" class="hidden">
@@ -131,6 +172,116 @@
 
     </main>
 
+    <!-- Role Modal -->
+    <div id="roleModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div
+            class="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl w-full max-w-lg p-6 transform transition-all scale-100">
+            <h2 id="roleModalTitle" class="text-xl font-bold mb-4 text-white">Novo Cargo</h2>
+            <form id="roleForm" class="space-y-4">
+                <input type="hidden" id="roleId">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Nome do Cargo</label>
+                    <input type="text" id="roleName" required
+                        class="w-full px-3 py-2 rounded-lg bg-gray-900 border border-gray-600 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors">
+                </div>
+
+                <!-- Permissions -->
+                <div class="space-y-4">
+                    <h3 class="text-sm font-semibold text-gray-300 border-b border-gray-700 pb-1">Permissões</h3>
+
+                    <!-- Projects DO NOT HAVE A TOGGLE ANYMORE, IT IS ALWAYS ON -->
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2 text-white font-medium mb-2">
+                            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z">
+                                </path>
+                            </svg>
+                            Projetos
+                        </div>
+
+                        <div class="ml-6 space-y-1 pl-2 border-l border-gray-700">
+                            <label class="flex items-center gap-2 text-gray-400 text-sm">
+                                <input type="checkbox" id="perm_projects_create"
+                                    class="form-checkbox text-blue-600 bg-gray-900 border-gray-600 rounded">
+                                Criar Projetos
+                            </label>
+                            <label class="flex items-center gap-2 text-gray-400 text-sm">
+                                <input type="checkbox" id="perm_projects_edit"
+                                    class="form-checkbox text-blue-600 bg-gray-900 border-gray-600 rounded">
+                                Editar Projetos
+                            </label>
+                            <label class="flex items-center gap-2 text-gray-400 text-sm">
+                                <input type="checkbox" id="perm_projects_delete"
+                                    class="form-checkbox text-blue-600 bg-gray-900 border-gray-600 rounded">
+                                Excluir Projetos
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Users -->
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-2 text-white font-medium cursor-pointer">
+                            <input type="checkbox" id="perm_users_view" onchange="toggleChildren('users')"
+                                class="form-checkbox text-blue-600 bg-gray-900 border-gray-600 rounded">
+                            Usuários (Acesso)
+                        </label>
+                        <div id="children_users" class="ml-6 space-y-1 pl-2 border-l border-gray-700 hidden">
+                            <label class="flex items-center gap-2 text-gray-400 text-sm">
+                                <input type="checkbox" id="perm_users_create"
+                                    class="form-checkbox text-blue-600 bg-gray-900 border-gray-600 rounded">
+                                Criar Usuários
+                            </label>
+                            <label class="flex items-center gap-2 text-gray-400 text-sm">
+                                <input type="checkbox" id="perm_users_edit"
+                                    class="form-checkbox text-blue-600 bg-gray-900 border-gray-600 rounded">
+                                Editar Usuários
+                            </label>
+                            <label class="flex items-center gap-2 text-gray-400 text-sm">
+                                <input type="checkbox" id="perm_users_delete"
+                                    class="form-checkbox text-blue-600 bg-gray-900 border-gray-600 rounded">
+                                Apagar Usuários
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Roles -->
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-2 text-white font-medium cursor-pointer">
+                            <input type="checkbox" id="perm_roles_view" onchange="toggleChildren('roles')"
+                                class="form-checkbox text-blue-600 bg-gray-900 border-gray-600 rounded">
+                            Cargos (Perfil de Acesso)
+                        </label>
+                        <div id="children_roles" class="ml-6 space-y-1 pl-2 border-l border-gray-700 hidden">
+                            <label class="flex items-center gap-2 text-gray-400 text-sm">
+                                <input type="checkbox" id="perm_roles_create"
+                                    class="form-checkbox text-blue-600 bg-gray-900 border-gray-600 rounded">
+                                Criar Cargos
+                            </label>
+                            <label class="flex items-center gap-2 text-gray-400 text-sm">
+                                <input type="checkbox" id="perm_roles_edit"
+                                    class="form-checkbox text-blue-600 bg-gray-900 border-gray-600 rounded">
+                                Editar Cargos
+                            </label>
+                            <label class="flex items-center gap-2 text-gray-400 text-sm">
+                                <input type="checkbox" id="perm_roles_delete"
+                                    class="form-checkbox text-blue-600 bg-gray-900 border-gray-600 rounded">
+                                Apagar Cargos
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" onclick="closeRoleModal()"
+                        class="px-4 py-2 hover:text-white text-gray-400 transition-colors">Cancelar</button>
+                    <button type="submit"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors font-medium">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- User Modal -->
     <div id="userModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50">
         <div
@@ -154,8 +305,7 @@
                     <label class="block text-sm font-medium text-gray-300 mb-1">Perfil</label>
                     <select id="formRole"
                         class="w-full px-3 py-2 rounded-lg bg-gray-900 border border-gray-600 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors">
-                        <option value="Member">Membro</option>
-                        <option value="Admin">Admin</option>
+                        <!-- Populated by JS -->
                     </select>
                 </div>
                 <div class="flex justify-end gap-3 mt-6">

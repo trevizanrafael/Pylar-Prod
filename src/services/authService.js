@@ -56,7 +56,8 @@ class AuthService {
                     username: user.username,
                     role: user.role,
                     company_id: user.company_id,
-                    company_name: user.company_name
+                    company_name: user.company_name,
+                    permissions: await this.getUserPermissions(user)
                 }
             };
         }
@@ -66,6 +67,47 @@ class AuthService {
             message: 'Senha e usuário não correspondem.'
         };
     }
+
+    async getUserPermissions(user) {
+        console.log(`DEBUG: Getting permissions for user ${user.username} with role ${user.role} in company ${user.company_id}`);
+        if (user.role === 'SuperUser' || user.role === 'Admin') {
+            // Full Access
+            return {
+                projects: { view: true, create: true, edit: true, delete: true },
+                users: { view: true, create: true, edit: true, delete: true },
+                roles: { view: true, create: true, edit: true, delete: true }
+            };
+        }
+
+        try {
+            // Fetch custom role permissions
+            const res = await db.query(
+                "SELECT permissions FROM roles WHERE company_id = $1 AND name = $2",
+                [user.company_id, user.role]
+            );
+
+            if (res.rows.length > 0) {
+                let perms = res.rows[0].permissions;
+                if (typeof perms === 'string') {
+                    try { perms = JSON.parse(perms); } catch (e) { console.error('Parsed perm error', e); }
+                }
+                console.log("DEBUG: Found custom role permissions:", perms);
+                return perms; // JSON object from DB
+            } else {
+                console.log("DEBUG: Role not found in roles table. Using fallback.");
+            }
+        } catch (e) {
+            console.error("Error fetching permissions for user:", user.username, e);
+        }
+
+        // Default/Fallback (Member or unknown role)
+        return {
+            projects: { view: true, create: false, edit: false, delete: false },
+            users: { view: false, create: false, edit: false, delete: false },
+            roles: { view: false, create: false, edit: false, delete: false }
+        };
+    }
+
     async registerCompany(companyName, adminUsername, adminPassword) {
         // 1. Check if username already exists
         const existingUser = await userModel.findByUsername(adminUsername);
