@@ -11,34 +11,79 @@
 
         body {
             font-family: 'Inter', sans-serif;
+            background-color: #050507;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        .glass-sidebar {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-item-active {
+            background: linear-gradient(90deg, rgba(8, 145, 178, 0.15) 0%, rgba(147, 51, 234, 0.15) 100%);
+            border-left: 3px solid #06b6d4;
+            /* Cyan-500 */
+            color: #fff;
         }
     </style>
 </head>
+<link rel="icon" type="image/x-icon" href="/favicon.png">
 
-<body class="bg-gray-900 text-gray-100 font-sans antialiased h-screen overflow-hidden flex">
+<body class="text-slate-100 font-sans antialiased h-screen overflow-hidden flex">
 
     <!-- Sidebar -->
-    <aside class="w-64 bg-gray-800 border-r border-gray-700 hidden md:flex flex-col">
-        <div class="h-16 flex items-center px-6 border-b border-gray-700">
-            <span
-                class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">Pylar</span>
+    <aside class="w-64 glass-sidebar hidden md:flex flex-col z-20">
+        <div class="h-24 flex items-center px-6 border-b border-white/5">
+            <img src="/logo.png" alt="Pylar Logo" class="h-14 w-auto filter drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]">
         </div>
 
-        <nav class="flex-1 px-4 py-4 space-y-2">
+        <nav class="flex-1 px-4 py-6 space-y-2">
             <!-- Users Link (Admin Only) -->
             <a href="#" id="navUsers" onclick="switchTab('users'); return false;"
-                class="flex items-center px-4 py-3 text-gray-400 hover:text-white hover:bg-gray-700/30 rounded-lg transition-colors hidden">
-                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                class="flex items-center px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-r-lg transition-all duration-300 group">
+                <svg class="w-5 h-5 mr-3 group-hover:text-cyan-400 transition-colors" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
                     </path>
                 </svg>
                 Usuários
             </a>
+            <!-- Roles Link (Dynamic) -->
+            <a href="#" id="navRoles" onclick="switchTab('roles'); return false;"
+                class="flex items-center px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-r-lg transition-all duration-300 group">
+                <svg class="w-5 h-5 mr-3 group-hover:text-purple-400 transition-colors" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
+                    </path>
+                </svg>
+                Cargos
+            </a>
             <!-- Projects Link (All) -->
             <a href="#" id="navProjects" onclick="switchTab('projects'); return false;"
-                class="flex items-center px-4 py-3 text-gray-400 hover:text-white hover:bg-gray-700/30 rounded-lg transition-colors">
-                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                class="flex items-center px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-r-lg transition-all duration-300 group">
+                <svg class="w-5 h-5 mr-3 group-hover:text-blue-400 transition-colors" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
                 </svg>
@@ -47,31 +92,66 @@
         </nav>
 
         <!-- User Profile -->
-        <div class="p-4 border-t border-gray-700">
+        <div class="p-4 border-t border-white/5 bg-black/20">
             <div class="flex items-center gap-3 mb-3">
                 <div
-                    class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-xs font-bold">
+                    class="w-9 h-9 rounded-full bg-gradient-to-tr from-cyan-600 to-purple-600 flex items-center justify-center text-xs font-bold text-white shadow-lg shadow-purple-500/20 ring-1 ring-white/10">
                     <span id="userInitials">...</span>
                 </div>
                 <div class="overflow-hidden">
-                    <p id="userDisplay" class="text-sm font-medium text-white truncate">...</p>
-                    <p id="companyDisplay" class="text-xs text-gray-500 truncate">...</p>
+                    <p id="userDisplay" class="text-sm font-semibold text-white truncate">...</p>
+                    <p id="companyDisplay" class="text-xs text-slate-500 truncate">...</p>
                 </div>
             </div>
             <button onclick="logout()"
-                class="w-full flex items-center justify-center px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-lg transition-colors">
+                class="w-full flex items-center justify-center px-4 py-2 text-xs font-medium text-red-400 hover:text-white hover:bg-red-500/10 border border-transparent hover:border-red-500/20 rounded-lg transition-all duration-300">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
                     </path>
                 </svg>
-                Sair
+                Desconectar
             </button>
         </div>
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto bg-gray-900 p-8">
+    <main class="flex-1 overflow-y-auto bg-[#050507] p-8 relative">
+        <!-- Background Glow -->
+        <div
+            class="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-blue-900/10 to-transparent pointer-events-none">
+        </div>
+
+        <!-- Roles Section -->
+        <div id="rolesSection" class="hidden relative z-10">
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h1 class="text-3xl font-bold text-white tracking-tight">Cargos & Permissões</h1>
+                    <p class="text-slate-400 text-sm mt-1">Gerencie os perfis de acesso da sua equipe.</p>
+                </div>
+                <button onclick="openRoleModal()"
+                    class="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white px-5 py-2.5 rounded-xl transition-all duration-300 flex items-center gap-2 shadow-lg shadow-cyan-900/20 transform hover:-translate-y-0.5">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Novo Cargo
+                </button>
+            </div>
+
+            <div class="bg-slate-900/40 border border-white/5 rounded-2xl overflow-hidden backdrop-blur-md shadow-2xl">
+                <table class="w-full text-left text-sm text-slate-400">
+                    <thead class="bg-black/20 text-slate-200 uppercase text-xs font-bold tracking-wider">
+                        <tr>
+                            <th class="px-6 py-5">Nome do Cargo</th>
+                            <th class="px-6 py-5 text-right">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rolesTableBody" class="divide-y divide-white/5">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
         <!-- Users Section -->
         <div id="usersSection" class="hidden">
@@ -90,17 +170,17 @@
             </div>
 
             <!-- Users Table -->
-            <div class="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden shadow-xl">
-                <table class="w-full text-left text-sm text-gray-400">
-                    <thead class="bg-gray-700/50 text-gray-300 uppercase text-xs font-semibold">
+            <div class="bg-slate-900/40 border border-white/5 rounded-2xl overflow-hidden backdrop-blur-md shadow-2xl">
+                <table class="w-full text-left text-sm text-slate-400">
+                    <thead class="bg-black/20 text-slate-200 uppercase text-xs font-bold tracking-wider">
                         <tr>
-                            <th class="px-6 py-4">Nome</th>
-                            <th class="px-6 py-4">Perfil</th>
-                            <th class="px-6 py-4">Criado em</th>
-                            <th class="px-6 py-4 text-right">Ações</th>
+                            <th class="px-6 py-5">Nome</th>
+                            <th class="px-6 py-5">Perfil</th>
+                            <th class="px-6 py-5">Criado em</th>
+                            <th class="px-6 py-5 text-right">Ações</th>
                         </tr>
                     </thead>
-                    <tbody id="usersTableBody" class="divide-y divide-gray-700">
+                    <tbody id="usersTableBody" class="divide-y divide-white/5">
                         <!-- Populated by JS -->
                     </tbody>
                 </table>
@@ -123,13 +203,148 @@
                 </button>
             </div>
 
+            <!-- Empty State -->
+            <div id="emptyState"
+                class="hidden flex-col items-center justify-center py-20 bg-slate-900/40 rounded-3xl border border-white/5 border-dashed backdrop-blur-sm">
+                <div
+                    class="w-20 h-20 bg-slate-800/50 rounded-full flex items-center justify-center mb-6 ring-1 ring-white/10 shadow-inner">
+                    <svg class="w-10 h-10 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                        </path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">Nenhum projeto encontrado</h3>
+                <p class="text-slate-400 mb-8 max-w-sm text-center">Comece criando seu primeiro projeto para visualizar
+                    o
+                    progresso aqui.</p>
+                <button onclick="openProjectModal()"
+                    class="text-cyan-400 hover:text-cyan-300 font-medium transition-colors flex items-center gap-2">
+                    Criar meu primeiro projeto
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                    </svg>
+                </button>
+            </div>
+
             <!-- Projects Grid -->
-            <div id="projectsGrid" class="grid grid-cols-1 gap-6">
+            <div id="projectsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Populated by JS -->
             </div>
         </div>
 
     </main>
+
+    <!-- Role Modal -->
+    <div id="roleModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div
+            class="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl w-full max-w-lg p-6 transform transition-all scale-100">
+            <h2 id="roleModalTitle" class="text-xl font-bold mb-4 text-white">Novo Cargo</h2>
+            <form id="roleForm" class="space-y-4">
+                <input type="hidden" id="roleId">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Nome do Cargo</label>
+                    <input type="text" id="roleName" required
+                        class="w-full px-3 py-2 rounded-lg bg-gray-900 border border-gray-600 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors">
+                </div>
+
+                <!-- Permissions -->
+                <div class="space-y-4">
+                    <h3 class="text-sm font-semibold text-gray-300 border-b border-gray-700 pb-1">Permissões</h3>
+
+                    <!-- Projects DO NOT HAVE A TOGGLE ANYMORE, IT IS ALWAYS ON -->
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2 text-white font-medium mb-2">
+                            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z">
+                                </path>
+                            </svg>
+                            Projetos
+                        </div>
+
+                        <div class="ml-6 space-y-1 pl-2 border-l border-gray-700">
+                            <label class="flex items-center gap-2 text-gray-400 text-sm">
+                                <input type="checkbox" id="perm_projects_create"
+                                    class="form-checkbox text-blue-600 bg-gray-900 border-gray-600 rounded">
+                                Criar Projetos
+                            </label>
+                            <label class="flex items-center gap-2 text-gray-400 text-sm">
+                                <input type="checkbox" id="perm_projects_edit"
+                                    class="form-checkbox text-blue-600 bg-gray-900 border-gray-600 rounded">
+                                Editar Projetos
+                            </label>
+                            <label class="flex items-center gap-2 text-gray-400 text-sm">
+                                <input type="checkbox" id="perm_projects_delete"
+                                    class="form-checkbox text-blue-600 bg-gray-900 border-gray-600 rounded">
+                                Excluir Projetos
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Users -->
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-2 text-white font-medium cursor-pointer">
+                            <input type="checkbox" id="perm_users_view" onchange="toggleChildren('users')"
+                                class="form-checkbox text-blue-600 bg-gray-900 border-gray-600 rounded">
+                            Usuários (Acesso)
+                        </label>
+                        <div id="children_users" class="ml-6 space-y-1 pl-2 border-l border-gray-700 hidden">
+                            <label class="flex items-center gap-2 text-gray-400 text-sm">
+                                <input type="checkbox" id="perm_users_create"
+                                    class="form-checkbox text-blue-600 bg-gray-900 border-gray-600 rounded">
+                                Criar Usuários
+                            </label>
+                            <label class="flex items-center gap-2 text-gray-400 text-sm">
+                                <input type="checkbox" id="perm_users_edit"
+                                    class="form-checkbox text-blue-600 bg-gray-900 border-gray-600 rounded">
+                                Editar Usuários
+                            </label>
+                            <label class="flex items-center gap-2 text-gray-400 text-sm">
+                                <input type="checkbox" id="perm_users_delete"
+                                    class="form-checkbox text-blue-600 bg-gray-900 border-gray-600 rounded">
+                                Apagar Usuários
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Roles -->
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-2 text-white font-medium cursor-pointer">
+                            <input type="checkbox" id="perm_roles_view" onchange="toggleChildren('roles')"
+                                class="form-checkbox text-blue-600 bg-gray-900 border-gray-600 rounded">
+                            Cargos (Perfil de Acesso)
+                        </label>
+                        <div id="children_roles" class="ml-6 space-y-1 pl-2 border-l border-gray-700 hidden">
+                            <label class="flex items-center gap-2 text-gray-400 text-sm">
+                                <input type="checkbox" id="perm_roles_create"
+                                    class="form-checkbox text-blue-600 bg-gray-900 border-gray-600 rounded">
+                                Criar Cargos
+                            </label>
+                            <label class="flex items-center gap-2 text-gray-400 text-sm">
+                                <input type="checkbox" id="perm_roles_edit"
+                                    class="form-checkbox text-blue-600 bg-gray-900 border-gray-600 rounded">
+                                Editar Cargos
+                            </label>
+                            <label class="flex items-center gap-2 text-gray-400 text-sm">
+                                <input type="checkbox" id="perm_roles_delete"
+                                    class="form-checkbox text-blue-600 bg-gray-900 border-gray-600 rounded">
+                                Apagar Cargos
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" onclick="closeRoleModal()"
+                        class="px-4 py-2 hover:text-white text-gray-400 transition-colors">Cancelar</button>
+                    <button type="submit"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors font-medium">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- User Modal -->
     <div id="userModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50">
@@ -154,8 +369,7 @@
                     <label class="block text-sm font-medium text-gray-300 mb-1">Perfil</label>
                     <select id="formRole"
                         class="w-full px-3 py-2 rounded-lg bg-gray-900 border border-gray-600 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors">
-                        <option value="Member">Membro</option>
-                        <option value="Admin">Admin</option>
+                        <!-- Populated by JS -->
                     </select>
                 </div>
                 <div class="flex justify-end gap-3 mt-6">

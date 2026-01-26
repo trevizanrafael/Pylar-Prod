@@ -1,9 +1,11 @@
 const USERS_API_URL = '/api/users';
 const PROJECTS_API_URL = '/api/projects';
-let currentUser = null;
-let currentTab = 'projects'; // Default tab
+const ROLES_API_URL = '/api/roles';
 
-// Auth & Init
+let currentUser = null;
+let currentTab = 'projects';
+
+// --- Auth & Init ---
 function init() {
     const userStr = localStorage.getItem('pylar_user');
     if (!userStr) {
@@ -11,29 +13,47 @@ function init() {
         return;
     }
     currentUser = JSON.parse(userStr);
+    console.log("DEBUG: Current User:", currentUser);
+    console.log("DEBUG: Permissions:", currentUser.permissions);
 
-    // Security Check: Seed goes to seed.html
     if (currentUser.role === 'SuperUser') {
         window.location.href = '/seed.html';
         return;
     }
 
-    // Role Logic
+    // Sidebar Visibility Logic
+    let p = currentUser.permissions || {};
+    if (typeof p === 'string') {
+        try { p = JSON.parse(p); } catch (e) { console.error('Failed to parse permissions', e); p = {}; }
+    }
+    console.log("DEBUG: Sidebar Check - Role:", currentUser.role, "Users View:", p.users?.view, "Roles View:", p.roles?.view);
+
+    // Users Link
+    if (currentUser.role === 'Admin' || p.users?.view) {
+        const navUsers = document.getElementById('navUsers');
+        if (navUsers) navUsers.classList.remove('hidden');
+    }
+
+    // Roles Link
+    if (currentUser.role === 'Admin' || p.roles?.view) {
+        const navRoles = document.getElementById('navRoles');
+        if (navRoles) navRoles.classList.remove('hidden');
+    }
+
+    // Default Tab
     if (currentUser.role === 'Admin') {
-        document.getElementById('navUsers').classList.remove('hidden');
-        // Admin defaults to Users if they want, or Projects. Let's default to Projects to match Members, or Users if preferred?
-        // User asked for: "Admin sees user and projects CRUD".
-        // Let's default Admin to Users as it matters more.
         currentTab = 'users';
     } else {
-        // Member
         currentTab = 'projects';
     }
 
     // Update Header
     document.getElementById('userDisplay').textContent = currentUser.username;
-    if (document.getElementById('companyDisplay')) document.getElementById('companyDisplay').textContent = currentUser.company_name || '';
-    if (document.getElementById('userInitials')) document.getElementById('userInitials').textContent = currentUser.username.substring(0, 3).toUpperCase();
+    const companyDisplay = document.getElementById('companyDisplay');
+    if (companyDisplay) companyDisplay.textContent = currentUser.company_name || '';
+
+    const userInitials = document.getElementById('userInitials');
+    if (userInitials) userInitials.textContent = currentUser.username.substring(0, 3).toUpperCase();
 
     switchTab(currentTab);
 }
@@ -55,37 +75,202 @@ function switchTab(tab) {
     currentTab = tab;
     const usersSection = document.getElementById('usersSection');
     const projectsSection = document.getElementById('projectsSection');
+    const rolesSection = document.getElementById('rolesSection');
+
     const navUsers = document.getElementById('navUsers');
     const navProjects = document.getElementById('navProjects');
+    const navRoles = document.getElementById('navRoles');
 
-    // Reset Styles
-    const activeClass = ['bg-gray-700/50', 'text-white', 'border', 'border-gray-600'];
-    const inactiveClass = ['text-gray-400', 'hover:text-white', 'hover:bg-gray-700/30'];
+    // Helper: Toggle active class
+    const setActive = (el, active) => {
+        if (!el) return;
+        // The 'nav-item-active' class is defined in dashboard.html styles
+        const activeClass = ['nav-item-active'];
+        const inactiveClass = ['text-slate-400', 'hover:text-white', 'hover:bg-white/5'];
 
-    // Toggle Visibility
+        if (active) {
+            el.classList.add(...activeClass);
+            el.classList.remove(...inactiveClass);
+        } else {
+            el.classList.remove(...activeClass);
+            el.classList.add(...inactiveClass);
+        }
+    };
+
+    // Hide all
+    if (usersSection) usersSection.classList.add('hidden');
+    if (projectsSection) projectsSection.classList.add('hidden');
+    if (rolesSection) rolesSection.classList.add('hidden');
+
+    setActive(navUsers, false);
+    setActive(navProjects, false);
+    setActive(navRoles, false);
+
+    // Show selected
     if (tab === 'users') {
-        usersSection.classList.remove('hidden');
-        projectsSection.classList.add('hidden');
-
-        navUsers.classList.add(...activeClass);
-        navUsers.classList.remove(...inactiveClass);
-
-        navProjects.classList.remove(...activeClass);
-        navProjects.classList.add(...inactiveClass);
-
+        if (usersSection) usersSection.classList.remove('hidden');
+        setActive(navUsers, true);
         fetchUsers();
-    } else {
-        projectsSection.classList.remove('hidden');
-        usersSection.classList.add('hidden');
-
-        navProjects.classList.add(...activeClass);
-        navProjects.classList.remove(...inactiveClass);
-
-        navUsers.classList.remove(...activeClass);
-        navUsers.classList.add(...inactiveClass);
-
+    } else if (tab === 'projects') {
+        if (projectsSection) projectsSection.classList.remove('hidden');
+        setActive(navProjects, true);
         fetchProjects();
+    } else if (tab === 'roles') {
+        if (rolesSection) rolesSection.classList.remove('hidden');
+        setActive(navRoles, true);
+        fetchRoles();
     }
+}
+
+// --- Roles Logic ---
+async function fetchRoles() {
+    try {
+        const res = await fetchWrapper(ROLES_API_URL, 'GET');
+        if (!res) return;
+
+        const tbody = document.getElementById('rolesTableBody');
+        tbody.innerHTML = '';
+        if (!tbody) return;
+
+        res.forEach(role => {
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-white/5 transition-colors border-b border-white/5 last:border-0';
+            tr.innerHTML = `
+                <td class="px-6 py-4 font-medium text-white">${role.name}</td>
+                <td class="px-6 py-4 text-right space-x-2">
+                    <button onclick='editRole(${JSON.stringify(role)})' class="text-cyan-400 hover:text-cyan-300 text-sm font-medium transition-colors">Editar</button>
+                    <button onclick="deleteRole(${role.id})" class="text-red-400 hover:text-red-300 text-sm font-medium transition-colors">Excluir</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch (error) {
+        console.error('Error fetching roles:', error);
+    }
+}
+
+const roleModal = document.getElementById('roleModal');
+const roleForm = document.getElementById('roleForm');
+const roleModalTitle = document.getElementById('roleModalTitle');
+const roleIdInput = document.getElementById('roleId');
+const roleNameInput = document.getElementById('roleName');
+
+window.openRoleModal = function (isEdit = false) {
+    if (!roleModal) return;
+    roleModal.classList.remove('hidden');
+    roleModal.classList.add('flex');
+    if (!isEdit) {
+        roleModalTitle.textContent = 'Novo Cargo';
+        roleForm.reset();
+        roleIdInput.value = '';
+        const chUsers = document.getElementById('children_users');
+        if (chUsers) chUsers.classList.add('hidden');
+        const chRoles = document.getElementById('children_roles');
+        if (chRoles) chRoles.classList.add('hidden');
+    } else {
+        roleModalTitle.textContent = 'Editar Cargo';
+    }
+}
+
+window.closeRoleModal = function () {
+    if (!roleModal) return;
+    roleModal.classList.add('hidden');
+    roleModal.classList.remove('flex');
+}
+
+window.toggleChildren = function (module) {
+    const parent = document.getElementById(`perm_${module}_view`);
+    const childrenDiv = document.getElementById(`children_${module}`);
+    if (!parent || !childrenDiv) return;
+
+    if (parent.checked) {
+        childrenDiv.classList.remove('hidden');
+    } else {
+        childrenDiv.classList.add('hidden');
+        childrenDiv.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+    }
+}
+
+window.editRole = function (role) {
+    roleIdInput.value = role.id;
+    roleNameInput.value = role.name;
+    const p = role.permissions || {};
+
+    // Projects (Always View)
+    // setCheck('perm_projects_view', !!p.projects?.view); // Element removed from HTML
+    setCheck('perm_projects_create', !!p.projects?.create);
+    setCheck('perm_projects_edit', !!p.projects?.edit);
+    setCheck('perm_projects_delete', !!p.projects?.delete);
+
+    // Users
+    setCheck('perm_users_view', !!p.users?.view);
+    const chUsers = document.getElementById('children_users');
+    if (p.users?.view) chUsers.classList.remove('hidden');
+    else chUsers.classList.add('hidden');
+    setCheck('perm_users_create', !!p.users?.create);
+    setCheck('perm_users_edit', !!p.users?.edit);
+    setCheck('perm_users_delete', !!p.users?.delete);
+
+    // Roles
+    setCheck('perm_roles_view', !!p.roles?.view);
+    const chRoles = document.getElementById('children_roles');
+    if (p.roles?.view) chRoles.classList.remove('hidden');
+    else chRoles.classList.add('hidden');
+    setCheck('perm_roles_create', !!p.roles?.create);
+    setCheck('perm_roles_edit', !!p.roles?.edit);
+    setCheck('perm_roles_delete', !!p.roles?.delete);
+
+    openRoleModal(true);
+}
+
+function setCheck(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.checked = val;
+}
+
+function getCheck(id) {
+    const el = document.getElementById(id);
+    return el ? el.checked : false;
+}
+
+window.deleteRole = async function (id) {
+    if (!confirm('Excluir cargo?')) return;
+    await fetchWrapper(`${ROLES_API_URL}/${id}`, 'DELETE');
+    fetchRoles();
+}
+
+if (roleForm) {
+    roleForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = roleIdInput.value;
+        const permissions = {
+            projects: {
+                view: true, // Always true
+                create: getCheck('perm_projects_create'),
+                edit: getCheck('perm_projects_edit'),
+                delete: getCheck('perm_projects_delete')
+            },
+            users: {
+                view: getCheck('perm_users_view'),
+                create: getCheck('perm_users_create'),
+                edit: getCheck('perm_users_edit'),
+                delete: getCheck('perm_users_delete')
+            },
+            roles: {
+                view: getCheck('perm_roles_view'),
+                create: getCheck('perm_roles_create'),
+                edit: getCheck('perm_roles_edit'),
+                delete: getCheck('perm_roles_delete')
+            }
+        };
+
+        const body = { name: roleNameInput.value, permissions };
+        const res = await fetchWrapper(id ? `${ROLES_API_URL}/${id}` : ROLES_API_URL, id ? 'PUT' : 'POST', body);
+        if (res) {
+            closeRoleModal();
+            fetchRoles();
+        }
+    });
 }
 
 // --- Users Logic ---
@@ -104,16 +289,16 @@ async function fetchUsers() {
         users.forEach(user => {
             const isMe = user.username === currentUser.username;
             const tr = document.createElement('tr');
-            tr.className = 'hover:bg-gray-800/50 transition-colors border-b border-gray-700/50 last:border-0';
+            tr.className = 'hover:bg-white/5 transition-colors border-b border-white/5 last:border-0';
             tr.innerHTML = `
                 <td class="px-6 py-4 font-medium text-white">
                     ${user.username} 
-                    ${isMe ? '<span class="ml-2 text-xs text-blue-400 font-bold bg-blue-400/10 px-2 py-0.5 rounded-full border border-blue-400/20">(Você!)</span>' : ''}
+                    ${isMe ? '<span class="ml-2 text-xs text-cyan-400 font-bold bg-cyan-400/10 px-2 py-0.5 rounded-full border border-cyan-400/20">(Você!)</span>' : ''}
                 </td>
                 <td class="px-6 py-4">
-                     <span class="px-2 py-1 rounded text-xs border ${user.role === 'Admin' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' : 'bg-blue-500/10 text-blue-400 border-blue-500/20'}">${user.role}</span>
+                     <span class="px-2 py-1 rounded text-xs border ${user.role === 'Admin' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'}">${user.role}</span>
                 </td>
-                <td class="px-6 py-4 text-gray-400">${formatDate(user.created_at)}</td>
+                <td class="px-6 py-4 text-slate-400">${formatDate(user.created_at)}</td>
                 <td class="px-6 py-4 text-right space-x-2">
                     <button onclick="editUser(${user.id}, '${user.username}', '${user.role}')" class="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors">Editar</button>
                     ${!isMe ? `<button onclick="deleteUser(${user.id})" class="text-red-400 hover:text-red-300 text-sm font-medium transition-colors">Excluir</button>` : ''}
@@ -189,9 +374,38 @@ const passwordInput = document.getElementById('formPassword');
 const roleInput = document.getElementById('formRole');
 const passwordHint = document.getElementById('passwordHint');
 
-function openModal(isEdit = false) {
+async function openModal(isEdit = false) {
     userModal.classList.remove('hidden');
     userModal.classList.add('flex');
+
+    // Populate Roles Logic
+    const roleSelect = document.getElementById('formRole');
+    roleSelect.innerHTML = '<option value="">Carregando...</option>';
+
+    try {
+        const rolesRes = await fetchWrapper(ROLES_API_URL, 'GET');
+        roleSelect.innerHTML = ''; // Clear loading
+
+        // 1. Admin (Always available)
+        const adminOpt = document.createElement('option');
+        adminOpt.value = 'Admin';
+        adminOpt.textContent = 'Admin (Acesso Total)';
+        roleSelect.appendChild(adminOpt);
+
+        // 2. Dynamic Roles
+        if (rolesRes && Array.isArray(rolesRes)) {
+            rolesRes.forEach(r => {
+                const opt = document.createElement('option');
+                opt.value = r.name; // Using name as the key for now, backend maps it
+                opt.textContent = r.name;
+                roleSelect.appendChild(opt);
+            });
+        }
+    } catch (e) {
+        console.error("Error fetching roles for modal", e);
+        roleSelect.innerHTML = '<option value="Admin">Admin (Fallback)</option>';
+    }
+
     if (!isEdit) {
         userModalTitle.textContent = 'Novo Usuário';
         userForm.reset();
@@ -202,6 +416,8 @@ function openModal(isEdit = false) {
         userModalTitle.textContent = 'Editar Usuário';
         passwordHint.classList.remove('hidden');
         passwordInput.required = false;
+        // Restore selected role after population (if editUser called before this finished, handled by local var capture or re-assignment? 
+        // Actually editUser sets values synchronously, but fetch is async. We might need to set it again or pass it.)
     }
 }
 
@@ -210,12 +426,12 @@ function closeModal() {
     userModal.classList.remove('flex');
 }
 
-window.editUser = function (id, username, role) {
+window.editUser = async function (id, username, role) {
+    await openModal(true); // Wait for roles to populate
     userIdInput.value = id;
     usernameInput.value = username;
     roleInput.value = role;
     passwordInput.value = '';
-    openModal(true);
 }
 
 window.deleteUser = async function (id) {
@@ -224,29 +440,31 @@ window.deleteUser = async function (id) {
     fetchUsers();
 }
 
-userForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const id = userIdInput.value;
-    const body = { username: usernameInput.value, role: roleInput.value };
-    if (passwordInput.value) body.password = passwordInput.value;
+if (userForm) {
+    userForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = userIdInput.value;
+        const body = { username: usernameInput.value, role: roleInput.value };
+        if (passwordInput.value) body.password = passwordInput.value;
 
-    const res = await fetchWrapper(id ? `${USERS_API_URL}/${id}` : USERS_API_URL, id ? 'PUT' : 'POST', body);
-    if (res) {
-        // Check if we updated ourselves
-        if (id && parseInt(id) === currentUser.id) {
-            currentUser.username = body.username;
-            currentUser.role = body.role; // In case role changed (though usually restricted)
-            localStorage.setItem('pylar_user', JSON.stringify(currentUser));
+        const res = await fetchWrapper(id ? `${USERS_API_URL}/${id}` : USERS_API_URL, id ? 'PUT' : 'POST', body);
+        if (res) {
+            // Check if we updated ourselves
+            if (id && parseInt(id) === currentUser.id) {
+                currentUser.username = body.username;
+                currentUser.role = body.role; // In case role changed
+                localStorage.setItem('pylar_user', JSON.stringify(currentUser));
 
-            // Update Header immediately
-            document.getElementById('userDisplay').textContent = currentUser.username;
-            if (document.getElementById('userInitials')) document.getElementById('userInitials').textContent = currentUser.username.substring(0, 3).toUpperCase();
+                // Update Header immediately
+                document.getElementById('userDisplay').textContent = currentUser.username;
+                if (document.getElementById('userInitials')) document.getElementById('userInitials').textContent = currentUser.username.substring(0, 3).toUpperCase();
+            }
+
+            closeModal();
+            fetchUsers();
         }
-
-        closeModal();
-        fetchUsers();
-    }
-});
+    });
+}
 
 // Project Modal
 const projectModal = document.getElementById('projectModal');
@@ -274,7 +492,6 @@ window.closeProjectModal = function () {
 }
 
 window.editProject = function (id) {
-    // Ensure ID comparison works (string vs number)
     const project = currentProjects.find(p => p.id == id);
     if (!project) return;
 
@@ -290,17 +507,19 @@ window.deleteProject = async function (id) {
     fetchProjects();
 }
 
-projectForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const id = projectIdInput.value;
-    const body = { name: projectNameInput.value, description: projectDescInput.value };
+if (projectForm) {
+    projectForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = projectIdInput.value;
+        const body = { name: projectNameInput.value, description: projectDescInput.value };
 
-    const res = await fetchWrapper(id ? `${PROJECTS_API_URL}/${id}` : PROJECTS_API_URL, id ? 'PUT' : 'POST', body);
-    if (res) {
-        closeProjectModal();
-        fetchProjects();
-    }
-});
+        const res = await fetchWrapper(id ? `${PROJECTS_API_URL}/${id}` : PROJECTS_API_URL, id ? 'PUT' : 'POST', body);
+        if (res) {
+            closeProjectModal();
+            fetchProjects();
+        }
+    });
+}
 
 // Helper
 async function fetchWrapper(url, method, body = null) {
@@ -317,6 +536,8 @@ async function fetchWrapper(url, method, body = null) {
         if (body) options.body = JSON.stringify(body);
 
         const res = await fetch(url, options);
+        if (res.status === 204) return true;
+
         const data = await res.json();
 
         if (!res.ok) {
@@ -338,5 +559,8 @@ window.openModal = openModal;
 window.closeModal = closeModal;
 window.openProjectModal = openProjectModal;
 window.closeProjectModal = closeProjectModal;
+window.openRoleModal = openRoleModal;
+window.closeRoleModal = closeRoleModal;
+window.editRole = editRole;
 
 init();
